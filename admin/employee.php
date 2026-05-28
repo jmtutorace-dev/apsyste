@@ -159,6 +159,10 @@ $(document).on('click', '.employee-row', function(e){
       $('#view_birthdate').html(response.birthdate);
       $('#view_contact').html(response.contact_info);
       $('#view_gender').html(response.gender);
+      $('#view_position').html(response.position_name);
+
+// 🔥 ADD THIS
+$('#view_benefits').html(response.benefits);
 
       $('#view_position').html(response.position_name);
       $('#view_department').html(response.department);
@@ -169,7 +173,9 @@ $(document).on('click', '.employee-row', function(e){
 });
 
 // EDIT FUNCTION
+
 function getRow(id){
+
   $.ajax({
     type:'POST',
     url:'employee_row.php',
@@ -177,6 +183,9 @@ function getRow(id){
     dataType:'json',
     success:function(response){
 
+      console.log(response);
+
+      // IMPORTANT
       $('.empid').val(response.empid);
 
       $('#edit_firstname').val(response.firstname);
@@ -189,9 +198,23 @@ function getRow(id){
       $('#edit_position').val(response.position_id);
       $('#edit_schedule').val(response.schedule_id);
       $('#edit_department').val(response.department);
+
+      // LOAD DEDUCTIONS
+  
+$.ajax({
+    type: 'POST',
+    url: 'includes/employee_fetch_deductions.php',
+    data: {id: response.empid},
+    success: function(html){
+        $('#deduction_container').html(html);
+    }
+});
+
+
     }
   });
 }
+
 
 </script>
 

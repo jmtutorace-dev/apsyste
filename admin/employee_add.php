@@ -10,64 +10,108 @@
 		$contact = $_POST['contact'];
 		$gender = $_POST['gender'];
 		$position = $_POST['position'];
-		$department = $_POST['department']; // ✅ ADDED
+		$department = $_POST['department'];
 		$schedule = $_POST['schedule'];
 
+		// =========================================
+		// PHOTO
+		// =========================================
+
 		$filename = $_FILES['photo']['name'];
+
 		if(!empty($filename)){
-			move_uploaded_file($_FILES['photo']['tmp_name'], '../images/'.$filename);	
+			move_uploaded_file(
+				$_FILES['photo']['tmp_name'],
+				'../images/'.$filename
+			);
 		}
 
-		// creating employee id
+		// =========================================
+		// GENERATE EMPLOYEE ID
+		// =========================================
+
 		$letters = '';
 		$numbers = '';
 
-		foreach (range('A', 'Z') as $char) {
-		    $letters .= $char;
+		foreach(range('A', 'Z') as $char){
+			$letters .= $char;
 		}
 
 		for($i = 0; $i < 10; $i++){
 			$numbers .= $i;
 		}
 
-		$employee_id = substr(str_shuffle($letters), 0, 3) . substr(str_shuffle($numbers), 0, 9);
+		$employee_id =
+			substr(str_shuffle($letters), 0, 3).
+			substr(str_shuffle($numbers), 0, 9);
 
-		// ✅ FIXED INSERT (NOW INCLUDES DEPARTMENT)
+		// =========================================
+		// INSERT EMPLOYEE
+		// =========================================
+
 		$sql = "INSERT INTO employees (
-			employee_id,
-			firstname,
-			lastname,
-			address,
-			birthdate,
-			contact_info,
-			gender,
-			position_id,
-			department,
-			schedule_id,
-			photo,
-			created_on
-		) VALUES (
-			'$employee_id',
-			'$firstname',
-			'$lastname',
-			'$address',
-			'$birthdate',
-			'$contact',
-			'$gender',
-			'$position',
-			'$department',
-			'$schedule',
-			'$filename',
-			NOW()
-		)";
+					employee_id,
+					firstname,
+					lastname,
+					address,
+					birthdate,
+					contact_info,
+					gender,
+					position_id,
+					department,
+					schedule_id,
+					photo,
+					created_on
+				) VALUES (
+					'$employee_id',
+					'$firstname',
+					'$lastname',
+					'$address',
+					'$birthdate',
+					'$contact',
+					'$gender',
+					'$position',
+					'$department',
+					'$schedule',
+					'$filename',
+					NOW()
+				)";
 
 		if($conn->query($sql)){
+
+			// =========================================
+			// GET NEW EMPLOYEE ID
+			// =========================================
+
+			$new_employee_id = $conn->insert_id;
+
+			// =========================================
+			// SAVE SELECTED DEDUCTIONS
+			// =========================================
+
+			if(isset($_POST['deductions'])){
+
+				foreach($_POST['deductions'] as $deduction_id){
+
+					$sql2 = "INSERT INTO employee_deductions (
+								employee_id,
+								deduction_id,
+								created_on
+							) VALUES (
+								'$new_employee_id',
+								'$deduction_id',
+								NOW()
+							)";
+
+					$conn->query($sql2);
+				}
+			}
+
 			$_SESSION['success'] = 'Employee added successfully';
 		}
 		else{
 			$_SESSION['error'] = $conn->error;
 		}
-
 	}
 	else{
 		$_SESSION['error'] = 'Fill up add form first';

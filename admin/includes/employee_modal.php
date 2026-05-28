@@ -57,9 +57,8 @@
                       </select>
                     </div>
                 </div>
-                <div class="form-group">
+                 <div class="form-group">
                     <label for="position" class="col-sm-3 control-label">Position</label>
-
                     <div class="col-sm-9">
                       <select class="form-control" name="position" id="position" required>
                         <option value="" selected>- Select -</option>
@@ -67,14 +66,44 @@
                           $sql = "SELECT * FROM position";
                           $query = $conn->query($sql);
                           while($prow = $query->fetch_assoc()){
-                            echo "
-                              <option value='".$prow['id']."'>".$prow['description']."</option>
-                            ";
+                            echo "<option value='".$prow['id']."'>".$prow['description']."</option>";
                           }
                         ?>
                       </select>
                     </div>
                 </div>
+
+                <!-- ===================== -->
+                <!-- ONLY ADDITION STARTS -->
+                <!-- ===================== -->
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Deductions</label>
+
+                    <div class="col-sm-9">
+
+                        <?php
+                        $dsql = "SELECT * FROM deductions ORDER BY description ASC";
+                        $dquery = $conn->query($dsql);
+
+                        while($drow = $dquery->fetch_assoc()){
+                            echo "
+                                <div class='checkbox'>
+                                    <label>
+                                        <input type='checkbox' name='deductions[]' value='".$drow['id']."'>
+                                        ".$drow['description']." (".$drow['amount']." ".$drow['type'].")
+                                    </label>
+                                </div>
+                            ";
+                        }
+                        ?>
+
+                    </div>
+                </div>
+
+                <!-- ===================== -->
+                <!-- ONLY ADDITION ENDS -->
+                <!-- ===================== -->
                 <div class="form-group">
     <label for="department" class="col-sm-3 control-label">Department</label>
 
@@ -238,6 +267,12 @@
                     </div>
                 </div>
                 <div class="form-group">
+    <label class="col-sm-3 control-label">Deductions</label>
+    <div class="col-sm-9" id="deduction_container">
+        <!-- CHECKBOXES WILL LOAD HERE -->
+    </div>
+</div>
+                <div class="form-group">
     <label for="edit_department" class="col-sm-3 control-label">Department</label>
 
     <div class="col-sm-9">
@@ -366,6 +401,7 @@
         <p><b>Contact:</b> <span id="view_contact"></span></p>
         <p><b>Gender:</b> <span id="view_gender"></span></p>
         <p><b>Position:</b> <span id="view_position"></span></p>
+        <p><b>Benefits:</b><br><span id="view_benefits"></span></p>
         <p><b>Department:</b> <span id="view_department"></span></p>
         <p><b>Schedule:</b> <span id="view_schedule"></span></p>
 

@@ -1,189 +1,375 @@
 <?php
-	include 'includes/session.php';
-	
-	$range = $_POST['date_range'];
-	$ex = explode(' - ', $range);
+include 'includes/session.php';
 
-	$from = date('Y-m-d', strtotime($ex[0]));
-	$to = date('Y-m-d', strtotime($ex[1]));
+$range = $_POST['date_range'];
 
-	// Deductions
-	$sql = "SELECT SUM(amount) as total_amount FROM deductions";
-    $query = $conn->query($sql);
+$ex = explode(' - ', $range);
 
-   	$drow = $query->fetch_assoc();
+$from = date('Y-m-d', strtotime($ex[0]));
+$to = date('Y-m-d', strtotime($ex[1]));
 
-    $deduction = $drow['total_amount'] ? $drow['total_amount'] : 0;
+// =====================================================
+// GLOBAL DEDUCTIONS
+// =====================================================
 
-	$from_title = date('M d, Y', strtotime($ex[0]));
-	$to_title = date('M d, Y', strtotime($ex[1]));
+$sql = "SELECT SUM(amount) AS total_amount FROM deductions";
 
-	require_once('../tcpdf/tcpdf.php');
+$query = $conn->query($sql);
 
-    $pdf = new TCPDF('P', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+$drow = $query->fetch_assoc();
 
-    $pdf->SetCreator(PDF_CREATOR);
-    $pdf->SetTitle('Payslip: '.$from_title.' - '.$to_title);
+$deduction = $drow['total_amount'] ? $drow['total_amount'] : 0;
 
-    $pdf->SetHeaderData('', '', PDF_HEADER_TITLE, PDF_HEADER_STRING);
+$from_title = date('M d, Y', strtotime($ex[0]));
+$to_title = date('M d, Y', strtotime($ex[1]));
 
-    $pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-    $pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+require_once('../tcpdf/tcpdf.php');
 
-    $pdf->SetDefaultMonospacedFont('helvetica');
-    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+$pdf = new TCPDF('P', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-    $pdf->SetMargins(PDF_MARGIN_LEFT, '10', PDF_MARGIN_RIGHT);
+$pdf->SetCreator(PDF_CREATOR);
 
-    $pdf->setPrintHeader(false);
-    $pdf->setPrintFooter(false);
+$pdf->SetTitle('Payslip: '.$from_title.' - '.$to_title);
 
-    $pdf->SetAutoPageBreak(TRUE, 10);
+$pdf->setPrintHeader(false);
 
-    $pdf->SetFont('helvetica', '', 11);
+$pdf->setPrintFooter(false);
 
-    $pdf->AddPage();
+$pdf->SetMargins(10, 10, 10);
 
-    $contents = '';
+$pdf->SetAutoPageBreak(TRUE, 10);
 
-	$sql = "SELECT *,
-				   SUM(num_hr) AS total_hr,
-				   attendance.employee_id AS empid,
-				   employees.employee_id AS employee
-			FROM attendance
-			LEFT JOIN employees
-				ON employees.id=attendance.employee_id
-			LEFT JOIN position
-				ON position.id=employees.position_id
-			WHERE date BETWEEN '$from' AND '$to'
-			GROUP BY attendance.employee_id
-			ORDER BY employees.lastname ASC, employees.firstname ASC";
+$pdf->SetFont('helvetica', '', 11);
 
-	$query = $conn->query($sql);
+$pdf->AddPage();
 
-	while($row = $query->fetch_assoc()){
+$contents = '';
 
-		$empid = $row['empid'];
+// =====================================================
+// EMPLOYEES
+// =====================================================
 
-      	// Cash Advance
-      	$casql = "SELECT SUM(amount) AS cashamount
-				  FROM cashadvance
-				  WHERE employee_id='$empid'
-				  AND date_advance BETWEEN '$from' AND '$to'";
+$sql = "SELECT *,
+               SUM(num_hr) AS total_hr,
+               attendance.employee_id AS empid,
+               employees.employee_id AS employee
 
-      	$caquery = $conn->query($casql);
-      	$carow = $caquery->fetch_assoc();
+        FROM attendance
 
-      	$cashadvance = $carow['cashamount'] ? $carow['cashamount'] : 0;
+        LEFT JOIN employees
+          ON employees.id = attendance.employee_id
 
-		// Overtime
-		$otsql = "SELECT SUM(hours * rate) AS overtime_pay
-				  FROM overtime
-				  WHERE employee_id='$empid'
-				  AND date_overtime BETWEEN '$from' AND '$to'";
+        LEFT JOIN position
+          ON position.id = employees.position_id
 
-		$otquery = $conn->query($otsql);
-		$otrow = $otquery->fetch_assoc();
+        LEFT JOIN schedules
+          ON schedules.id = employees.schedule_id
 
-		$overtime = $otrow['overtime_pay'] ? $otrow['overtime_pay'] : 0;
+        WHERE date BETWEEN '$from' AND '$to'
 
-		// Regular Pay
-		$regular_pay = $row['rate'] * $row['total_hr'];
+        GROUP BY attendance.employee_id
 
-		// Gross Pay
-		$gross = $regular_pay + $overtime;
+        ORDER BY employees.lastname ASC,
+                 employees.firstname ASC";
 
-		// Total Deduction
-		$total_deduction = $deduction + $cashadvance;
+$query = $conn->query($sql);
 
-		// Net Pay
-  		$net = $gross - $total_deduction;
+while($row = $query->fetch_assoc()){
 
-		$contents .= '
-			<h2 align="center">TechSoft IT Solutions</h2>
-			<h4 align="center">'.$from_title." - ".$to_title.'</h4>
+    $empid = $row['empid'];
 
-			<table cellspacing="0" cellpadding="3">
+    // =====================================================
+    // CASH ADVANCE
+    // =====================================================
 
-    	       	<tr>
-            		<td width="25%" align="right">Employee Name: </td>
-                 	<td width="25%"><b>'.$row['firstname']." ".$row['lastname'].'</b></td>
+    $casql = "SELECT SUM(amount) AS cashamount
+              FROM cashadvance
+              WHERE employee_id='$empid'
+              AND date_advance BETWEEN '$from' AND '$to'";
 
-				 	<td width="25%" align="right">Rate per Hour: </td>
-                 	<td width="25%" align="right">'.number_format($row['rate'], 2).'</td>
-    	    	</tr>
+    $caquery = $conn->query($casql);
 
-    	    	<tr>
-    	    		<td width="25%" align="right">Employee ID: </td>
-				 	<td width="25%">'.$row['employee'].'</td>
+    $carow = $caquery->fetch_assoc();
 
-				 	<td width="25%" align="right">Total Hours: </td>
-				 	<td width="25%" align="right">'.number_format($row['total_hr'], 2).'</td>
-    	    	</tr>
+    $cashadvance = $carow['cashamount'] ? $carow['cashamount'] : 0;
 
-    	    	<tr>
-    	    		<td></td>
-    	    		<td></td>
+    // =====================================================
+    // OVERTIME
+    // =====================================================
 
-				 	<td width="25%" align="right">Regular Pay:</td>
-				 	<td width="25%" align="right">'.number_format($regular_pay, 2).'</td>
-    	    	</tr>
+    $otsql = "SELECT SUM(hours * rate) AS overtime_pay
+              FROM overtime
+              WHERE employee_id='$empid'
+              AND date_overtime BETWEEN '$from' AND '$to'";
 
-    	    	<tr>
-    	    		<td></td>
-    	    		<td></td>
+    $otquery = $conn->query($otsql);
 
-				 	<td width="25%" align="right">Overtime Pay:</td>
-				 	<td width="25%" align="right">'.number_format($overtime, 2).'</td>
-    	    	</tr>
+    $otrow = $otquery->fetch_assoc();
 
-    	    	<tr>
-    	    		<td></td>
-    	    		<td></td>
+    $overtime = $otrow['overtime_pay'] ? $otrow['overtime_pay'] : 0;
 
-				 	<td width="25%" align="right"><b>Gross Pay:</b></td>
-				 	<td width="25%" align="right"><b>'.number_format($gross, 2).'</b></td>
-    	    	</tr>
+    // =====================================================
+    // MONTHLY SALARY
+    // =====================================================
 
-    	    	<tr>
-    	    		<td></td>
-    	    		<td></td>
+    $monthly_salary = $row['rate'] ? $row['rate'] : 0;
 
-				 	<td width="25%" align="right">Deduction:</td>
-				 	<td width="25%" align="right">'.number_format($deduction, 2).'</td>
-    	    	</tr>
+    // =====================================================
+    // REAL PAYROLL COMPUTATION
+    // =====================================================
 
-    	    	<tr>
-    	    		<td></td>
-    	    		<td></td>
+    /*
+        REAL PAYROLL LOGIC
 
-				 	<td width="25%" align="right">Cash Advance:</td>
-				 	<td width="25%" align="right">'.number_format($cashadvance, 2).'</td>
-    	    	</tr>
+        Employee only earns based on:
+        total worked hours
 
-    	    	<tr>
-    	    		<td></td>
-    	    		<td></td>
+        FULL ATTENDANCE
+        = FULL SEMI-MONTHLY PAY
+    */
 
-				 	<td width="25%" align="right"><b>Total Deduction:</b></td>
-				 	<td width="25%" align="right"><b>'.number_format($total_deduction, 2).'</b></td>
-    	    	</tr>
+    $hourly_rate = ($monthly_salary / 2) / (15 * 8);
 
-    	    	<tr>
-    	    		<td></td>
-    	    		<td></td>
+    // ACTUAL BASE PAY
+    $base_pay = $row['total_hr'] * $hourly_rate;
 
-				 	<td width="25%" align="right"><b>Net Pay:</b></td>
-				 	<td width="25%" align="right"><b>'.number_format($net, 2).'</b></td>
-    	    	</tr>
+    // =====================================================
+    // LATE / UNDERTIME
+    // =====================================================
 
-    	    </table>
+    /*
+        DISPLAY ONLY
 
-    	    <br><hr>
-		';
-	}
+        NOT DEDUCTED AGAIN
+        because undertime is already reflected
+        in reduced worked hours.
+    */
 
-    $pdf->writeHTML($contents);
+    $late_deduction = 0;
 
-    $pdf->Output('payslip.pdf', 'I');
+    $attsql = "SELECT *
+               FROM attendance
+               WHERE employee_id='$empid'
+               AND date BETWEEN '$from' AND '$to'";
+
+    $attquery = $conn->query($attsql);
+
+    while($attrow = $attquery->fetch_assoc()){
+
+        $required_hours = 8;
+
+        $worked_hours = $attrow['num_hr'];
+
+        if($worked_hours < $required_hours){
+
+            $undertime_hours = $required_hours - $worked_hours;
+
+            $late_deduction += ($undertime_hours * $hourly_rate);
+        }
+    }
+
+    // =====================================================
+    // GROSS PAY
+    // =====================================================
+
+    $gross = $base_pay + $overtime;
+
+    // =====================================================
+    // TOTAL DEDUCTIONS
+    // =====================================================
+
+    /*
+        DO NOT INCLUDE late deduction AGAIN
+        to avoid DOUBLE DEDUCTION
+    */
+
+    $total_deduction = $deduction + $cashadvance;
+
+    // =====================================================
+    // NET PAY
+    // =====================================================
+
+    $net = $gross - $total_deduction;
+
+    // =====================================================
+    // PDF CONTENT
+    // =====================================================
+
+    $contents .= '
+
+    <h2 align="center">PAYSLIP</h2>
+
+    <h4 align="center">'.$from_title.' - '.$to_title.'</h4>
+
+    <table cellspacing="0" cellpadding="3">
+
+        <tr>
+
+            <td width="25%" align="right">
+                Employee Name:
+            </td>
+
+            <td width="25%">
+                <b>'.$row['firstname'].' '.$row['lastname'].'</b>
+            </td>
+
+            <td width="25%" align="right">
+                Monthly Salary:
+            </td>
+
+            <td width="25%" align="right">
+                '.number_format($monthly_salary, 2).'
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td width="25%" align="right">
+                Employee ID:
+            </td>
+
+            <td width="25%">
+                '.$row['employee'].'
+            </td>
+
+            <td width="25%" align="right">
+                Hours Worked:
+            </td>
+
+            <td width="25%" align="right">
+                '.number_format($row['total_hr'], 2).'
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                Base Pay:
+            </td>
+
+            <td width="25%" align="right">
+                '.number_format($base_pay, 2).'
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                Overtime Pay:
+            </td>
+
+            <td width="25%" align="right">
+                '.number_format($overtime, 2).'
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                Late / Undertime:
+            </td>
+
+            <td width="25%" align="right">
+                '.number_format($late_deduction, 2).'
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                Company Deductions:
+            </td>
+
+            <td width="25%" align="right">
+                '.number_format($deduction, 2).'
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                Cash Advance:
+            </td>
+
+            <td width="25%" align="right">
+                '.number_format($cashadvance, 2).'
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                <b>Gross Pay:</b>
+            </td>
+
+            <td width="25%" align="right">
+                <b>'.number_format($gross, 2).'</b>
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                <b>Total Deduction:</b>
+            </td>
+
+            <td width="25%" align="right">
+                <b>'.number_format($total_deduction, 2).'</b>
+            </td>
+
+        </tr>
+
+        <tr>
+
+            <td></td>
+            <td></td>
+
+            <td width="25%" align="right">
+                <b>Net Pay:</b>
+            </td>
+
+            <td width="25%" align="right">
+                <b>'.number_format($net, 2).'</b>
+            </td>
+
+        </tr>
+
+    </table>
+
+    <br><hr>
+    ';
+}
+
+$pdf->writeHTML($contents);
+
+$pdf->Output('payslip.pdf', 'I');
 ?>
