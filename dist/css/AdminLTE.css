@@ -5631,6 +5631,7 @@ table.text-center th {
  * Misc: print
  * -----------
  */
+ 
 @media print {
   .no-print,
   .main-sidebar,

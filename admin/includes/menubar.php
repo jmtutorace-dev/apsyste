@@ -1,61 +1,267 @@
 <aside class="main-sidebar">
-    <!-- sidebar: style can be found in sidebar.less -->
+
+    <!-- Sidebar -->
     <section class="sidebar">
 
-      <!-- Sidebar user panel -->
-      <div class="user-panel">
-        <div class="pull-left image">
-          <img src="<?php echo (!empty($user['photo'])) ? '../images/'.$user['photo'] : '../images/profile.jpg'; ?>" class="img-circle" alt="User Image">
+        <!-- USER PANEL -->
+        <div class="user-panel">
+
+            <div class="pull-left image">
+                <img src="<?php echo (!empty($user['photo'])) ? '../images/'.$user['photo'] : '../images/profile.jpg'; ?>"
+                     class="img-circle"
+                     alt="User Image">
+            </div>
+
+            <div class="pull-left info">
+
+                <p style="margin-bottom:3px;">
+                    <?php echo $user['firstname'].' '.$user['lastname']; ?>
+                </p>
+
+                <a href="#">
+                    <i class="fa fa-circle text-success"></i>
+                    Online
+                </a>
+
+            </div>
+
         </div>
-        <div class="pull-left info">
-          <p><?php echo $user['firstname'].' '.$user['lastname']; ?></p>
-          <a><i class="fa fa-circle text-success"></i> Online</a>
-        </div>
-      </div>
 
-      <!-- sidebar menu -->
-      <ul class="sidebar-menu" data-widget="tree">
+        <!-- SIDEBAR MENU -->
+        <ul class="sidebar-menu" data-widget="tree">
 
-        <li class="header">REPORTS</li>
+            <!-- DASHBOARD -->
+            <li class="header">
+                MAIN NAVIGATION
+            </li>
 
-        <li class=""><a href="home.php"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+            <li class="<?php echo ($page == 'home.php') ? 'active' : ''; ?>">
 
-        <li class="header">MANAGE</li>
+                <a href="home.php">
 
-        <li><a href="attendance.php"><i class="fa fa-calendar"></i> <span>Attendance</span></a></li>
+                    <i class="fa fa-dashboard"></i>
 
-        <li class="treeview">
-          <a href="#">
-            <i class="fa fa-users"></i>
-            <span>Employees</span>
-            <span class="pull-right-container">
-              <i class="fa fa-angle-left pull-right"></i>
-            </span>
-          </a>
+                    <span>Dashboard</span>
 
-          <ul class="treeview-menu">
-            <li><a href="employee.php"><i class="fa fa-circle-o"></i> Employee List</a></li>
-            <li><a href="overtime.php"><i class="fa fa-circle-o"></i> Overtime</a></li>
-            <li><a href="cashadvance.php"><i class="fa fa-circle-o"></i> Cash Advance</a></li>
-            <li><a href="schedule.php"><i class="fa fa-circle-o"></i> Schedules</a></li>
-          </ul>
-        </li>
+                </a>
 
-        <!-- ✅ ADDED HERE (NO UI CHANGE) -->
-        <li><a href="department.php"><i class="fa fa-building"></i> Departments</a></li>
+            </li>
 
-        <li><a href="deduction.php"><i class="fa fa-file-text"></i> Deductions</a></li>
+            <!-- ATTENDANCE -->
+            <li class="<?php echo ($page == 'attendance.php') ? 'active' : ''; ?>">
 
-        <li><a href="position.php"><i class="fa fa-suitcase"></i> Positions</a></li>
+                <a href="attendance.php">
 
-        <li class="header">PRINTABLES</li>
+                    <i class="fa fa-calendar-check-o"></i>
 
-        <li><a href="payroll.php"><i class="fa fa-files-o"></i> <span>Payroll</span></a></li>
+                    <span>Attendance</span>
 
-        <li><a href="schedule_employee.php"><i class="fa fa-clock-o"></i> <span>Schedule</span></a></li>
+                </a>
 
-      </ul>
+            </li>
+
+            <!-- EMPLOYEES -->
+            <li class="treeview <?php echo (
+                $page == 'employee.php' ||
+                $page == 'overtime.php' ||
+                $page == 'cashadvance.php' ||
+                $page == 'schedule.php'
+            ) ? 'active menu-open' : ''; ?>">
+
+                <a href="#">
+
+                    <i class="fa fa-users"></i>
+
+                    <span>Employees</span>
+
+                    <span class="pull-right-container">
+
+                        <i class="fa fa-angle-left pull-right"></i>
+
+                    </span>
+
+                </a>
+
+                <ul class="treeview-menu">
+
+                    <li class="<?php echo ($page == 'employee.php') ? 'active' : ''; ?>">
+
+                        <a href="employee.php">
+
+                            <i class="fa fa-circle-o"></i>
+
+                            Employee List
+
+                        </a>
+
+                    </li>
+
+                    <li class="<?php echo ($page == 'overtime.php') ? 'active' : ''; ?>">
+
+                        <a href="overtime.php">
+
+                            <i class="fa fa-circle-o"></i>
+
+                            Overtime
+
+                        </a>
+
+                    </li>
+
+                    <li class="<?php echo ($page == 'schedule.php') ? 'active' : ''; ?>">
+
+                        <a href="schedule.php">
+
+                            <i class="fa fa-circle-o"></i>
+
+                            Schedules
+
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </li>
+
+            
+
+            <!-- DEDUCTIONS -->
+            <li class="treeview <?php echo (
+                $page == 'deduction.php' ||
+                $page == 'caf_deduction.php'
+            ) ? 'active menu-open' : ''; ?>">
+
+                <a href="#">
+
+                    <i class="fa fa-money"></i>
+
+                    <span>Deductions</span>
+
+                    <span class="pull-right-container">
+
+                        <i class="fa fa-angle-left pull-right"></i>
+
+                    </span>
+
+                </a>
+
+                <ul class="treeview-menu">
+
+                    <li class="<?php echo ($page == 'deduction.php') ? 'active' : ''; ?>">
+
+                        <a href="deduction.php">
+
+                            <i class="fa fa-circle-o"></i>
+
+                            Government Deductions
+
+                        </a>
+
+                    </li>
+
+                    <li class="<?php echo ($page == 'employee_deductions.php') ? 'active' : ''; ?>">
+    <a href="employee_deductions.php">
+        <i class="fa fa-circle-o"></i>
+        Employee Deductions
+    </a>
+</li>
+
+
+                    <li class="<?php echo ($page == 'cashadvance.php') ? 'active' : ''; ?>">
+
+                        <a href="cashadvance.php">
+
+                            <i class="fa fa-circle-o"></i>
+
+                            Cash Advance
+
+                        </a>
+
+                    </li>
+
+                    <li class="<?php echo ($page == 'deduction_types.php') ? 'active' : ''; ?>">
+    <a href="deduction_types.php">
+        <i class="fa fa-circle-o"></i>
+        Deduction Types
+    </a>
+</li>
+
+                </ul>
+
+            </li>
+            <!-- DEPARTMENTS -->
+            <li class="<?php echo ($page == 'department.php') ? 'active' : ''; ?>">
+
+                <a href="department.php">
+
+                    <i class="fa fa-building"></i>
+
+                    <span>Departments</span>
+
+                </a>
+
+            </li>
+
+            <!-- POSITION -->
+            <li class="<?php echo ($page == 'position.php') ? 'active' : ''; ?>">
+
+                <a href="position.php">
+
+                    <i class="fa fa-suitcase"></i>
+
+                    <span>Positions</span>
+
+                </a>
+
+            </li>
+
+            <!-- HOLIDAYS -->
+            <li class="<?php echo ($page == 'holidays.php') ? 'active' : ''; ?>">
+
+                <a href="holidays.php">
+
+                    <i class="fa fa-calendar"></i>
+
+                    <span>Holidays</span>
+
+                </a>
+
+            </li>
+
+            <!-- REPORTS -->
+            <li class="header">
+                REPORTS & PRINTABLES
+            </li>
+
+            <!-- PAYROLL -->
+            <li class="<?php echo ($page == 'payroll.php') ? 'active' : ''; ?>">
+
+                <a href="payroll.php">
+
+                    <i class="fa fa-files-o"></i>
+
+                    <span>Payroll</span>
+
+                </a>
+
+            </li>
+
+            <!-- SCHEDULE -->
+            <li class="<?php echo ($page == 'schedule_employee.php') ? 'active' : ''; ?>">
+
+                <a href="schedule_employee.php">
+
+                    <i class="fa fa-clock-o"></i>
+
+                    <span>Employee Schedule</span>
+
+                </a>
+
+            </li>
+
+        </ul>
 
     </section>
-    <!-- /.sidebar -->
+
 </aside>

@@ -1,0 +1,33 @@
+/* Main Menu */
+.sidebar-menu > li > a{
+    white-space:normal !important;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+    line-height:18px;
+    height:auto !important;
+}
+
+/* Sub Menu */
+.treeview-menu > li > a{
+    white-space:normal !important;
+    word-wrap:break-word;
+    overflow-wrap:break-word;
+    line-height:18px;
+    height:auto !important;
+}
+
+/* Prevent arrow from covering text */
+.sidebar-menu .pull-right-container{
+    right:10px;
+}
+
+/* User panel name fix */
+.user-panel .info{
+    white-space:normal;
+    word-break:break-word;
+}
+
+/* Long submenu items */
+.treeview-menu{
+    overflow:hidden;
+}   

@@ -9,6 +9,7 @@
 <?php include 'includes/header.php'; ?>
 
 <body class="hold-transition skin-blue sidebar-mini">
+
 <div class="wrapper">
 
   <?php include 'includes/navbar.php'; ?>
@@ -16,29 +17,43 @@
 
   <div class="content-wrapper">
 
+    <!-- Content Header -->
     <section class="content-header">
+
       <h1>Payroll (Semi-Monthly)</h1>
 
       <ol class="breadcrumb">
+
         <li>
           <a href="#">
             <i class="fa fa-dashboard"></i> Home
           </a>
         </li>
+
         <li class="active">Payroll</li>
+
       </ol>
+
     </section>
 
+    <!-- Main Content -->
     <section class="content">
 
       <?php
+
         if(isset($_SESSION['error'])){
+
           echo "
             <div class='alert alert-danger alert-dismissible'>
+
               <button type='button'
                       class='close'
                       data-dismiss='alert'
-                      aria-hidden='true'>&times;</button>
+                      aria-hidden='true'>
+
+                &times;
+
+              </button>
 
               <h4>
                 <i class='icon fa fa-warning'></i> Error!
@@ -53,12 +68,18 @@
         }
 
         if(isset($_SESSION['success'])){
+
           echo "
             <div class='alert alert-success alert-dismissible'>
+
               <button type='button'
                       class='close'
                       data-dismiss='alert'
-                      aria-hidden='true'>&times;</button>
+                      aria-hidden='true'>
+
+                &times;
+
+              </button>
 
               <h4>
                 <i class='icon fa fa-check'></i> Success!
@@ -71,9 +92,11 @@
 
           unset($_SESSION['success']);
         }
+
       ?>
 
       <div class="row">
+
         <div class="col-xs-12">
 
           <div class="box">
@@ -126,8 +149,10 @@
 
             <div class="box-body">
 
+              <div class="table-responsive">
+
               <table id="example1"
-                     class="table table-bordered">
+                     class="table table-bordered table-striped">
 
                 <thead>
 
@@ -138,181 +163,250 @@
                   <th>Worked Hours</th>
                   <th>Base Pay</th>
                   <th>Overtime</th>
-                  <th>Late / Undertime</th>
+                  <th>Holiday Pay</th>
                   <th>Deductions</th>
-<th>Tax</th>
-<th>Cash Advance</th>
-<th>Net Pay</th>
+                  <th>Net Pay</th>
 
                 </thead>
 
                 <tbody>
 
-                  <?php
+                <?php
 
-                    // =====================================================
-                    // DATE RANGE
-                    // =====================================================
+                  $to = date('Y-m-d');
 
-                    $to = date('Y-m-d');
+                  $from = date(
+                    'Y-m-d',
+                    strtotime('-15 day', strtotime($to))
+                  );
 
-                    $from = date(
-                      'Y-m-d',
-                      strtotime('-15 day', strtotime($to))
-                    );
+                  if(isset($_GET['range'])){
 
-                    if(isset($_GET['range'])){
+                    $range = $_GET['range'];
 
-                      $range = $_GET['range'];
+                    $ex = explode(' - ', $range);
 
-                      $ex = explode(' - ', $range);
+                    $from = date('Y-m-d', strtotime($ex[0]));
+                    $to = date('Y-m-d', strtotime($ex[1]));
+                  }
 
-                      $from = date('Y-m-d', strtotime($ex[0]));
-                      $to = date('Y-m-d', strtotime($ex[1]));
-                    }
+                  $sql = "SELECT employees.*,
+                                 attendance.employee_id AS empid,
+                                 position.rate
 
-                    // =====================================================
-                    // EMPLOYEES
-                    // =====================================================
+                          FROM attendance
 
-                    $sql = "SELECT *,
-                                   attendance.employee_id AS empid
+                          LEFT JOIN employees
+                          ON employees.id = attendance.employee_id
 
-                            FROM attendance
+                          LEFT JOIN position
+                          ON position.id = employees.position_id
 
-                            LEFT JOIN employees
-                              ON employees.id = attendance.employee_id
+                          WHERE attendance.date BETWEEN '$from' AND '$to'
 
-                            LEFT JOIN position
-                              ON position.id = employees.position_id
+                          GROUP BY attendance.employee_id
 
-                            LEFT JOIN schedules
-                              ON schedules.id = employees.schedule_id
+                          ORDER BY employees.lastname ASC,
+                                   employees.firstname ASC";
 
-                            WHERE date BETWEEN '$from' AND '$to'
+                  $query = $conn->query($sql);
 
-                            GROUP BY attendance.employee_id
+                  while($row = $query->fetch_assoc()){
 
-                            ORDER BY employees.lastname ASC,
-                                     employees.firstname ASC";
+                    $empid = $row['empid'];
 
-                    $query = $conn->query($sql);
+                    $monthly_salary = $row['rate']
+                                       ? $row['rate']
+                                       : 0;
 
-                    while($row = $query->fetch_assoc()){
+                    $daily_rate = $monthly_salary / 26;
 
-                      $empid = $row['empid'];
+                    $hourly_rate = $daily_rate / 8;
 
-                      // =====================================================
-                      // MONTHLY SALARY
-                      // =====================================================
+                    $days_present = 0;
+                    $total_worked_hours = 0;
+                    $late_deduction = 0;
+                    $holiday_pay = 0;
+                    $base_pay = 0;
 
-                      $monthly_salary = $row['rate']
-                                         ? $row['rate']
-                                         : 0;
+                    $processed_holidays = array();
 
-                      // =====================================================
-                      // DAILY & HOURLY RATE
-                      // =====================================================
+                    $attsql = "SELECT *
+                               FROM attendance
+                               WHERE employee_id='$empid'
+                               AND date BETWEEN '$from' AND '$to'";
 
-                      // 26 working days
-                      $daily_rate = $monthly_salary / 26;
+                    $attquery = $conn->query($attsql);
 
-                      // 8 hours/day
-                      $hourly_rate = $daily_rate / 8;
+                    while($attrow = $attquery->fetch_assoc()){
 
-                      // =====================================================
-                      // ATTENDANCE
-                      // =====================================================
+                      $worked_hours = $attrow['num_hr'];
+                      $attendance_date = $attrow['date'];
 
-                      $days_present = 0;
-                      $total_worked_hours = 0;
-                      $late_deduction = 0;
-
-                      $attsql = "SELECT *
-                                 FROM attendance
-                                 WHERE employee_id='$empid'
-                                 AND date BETWEEN '$from' AND '$to'";
-
-                      $attquery = $conn->query($attsql);
-
-                      while($attrow = $attquery->fetch_assoc()){
-
-                        $worked_hours = $attrow['num_hr'];
-
-                        // skip invalid records
-                        if($worked_hours <= 0){
-                          continue;
-                        }
+                      if($worked_hours > 0){
 
                         $days_present++;
 
                         $total_worked_hours += $worked_hours;
+                      }
 
-                        // =====================================================
-                        // LATE / UNDERTIME
-                        // =====================================================
+                      // =====================================
+                      // LATE / UNDERTIME
+                      // =====================================
 
-                        if($worked_hours < 8){
+                      if($worked_hours > 0 && $worked_hours < 8){
 
-                          $undertime_hours = 8 - $worked_hours;
+                        $undertime_hours = 8 - $worked_hours;
 
-                          $late_deduction += (
-                            $undertime_hours * $hourly_rate
-                          );
+                        $late_deduction += (
+                          $undertime_hours * $hourly_rate
+                        );
+                      }
+
+                      // =====================================
+                      // HOLIDAY CHECK
+                      // =====================================
+
+                      $isHoliday = false;
+
+                      $hsql = "SELECT *
+                               FROM holidays
+                               WHERE holiday_date='$attendance_date'";
+
+                      $hquery = $conn->query($hsql);
+
+                      if($hquery->num_rows > 0){
+
+                        $isHoliday = true;
+
+                        $holiday = $hquery->fetch_assoc();
+
+                        $holiday_type = strtolower($holiday['type']);
+
+                        $processed_holidays[] = $attendance_date;
+
+                        // =================================
+                        // REGULAR HOLIDAY
+                        // =================================
+
+                        if($holiday_type == 'regular'){
+
+                            // PRESENT = DOUBLE PAY
+
+                            if($worked_hours > 0){
+
+                                $holiday_pay += (
+                                    ($worked_hours * $hourly_rate) * 2
+                                );
+                            }
+
+                            // ABSENT = 1 DAY PAY
+
+                            else{
+
+                                $holiday_pay += $daily_rate;
+                            }
+                        }
+
+                        // =================================
+                        // SPECIAL HOLIDAY
+                        // =================================
+
+                        else if($holiday_type == 'special'){
+
+                            if($worked_hours > 0){
+
+                                $holiday_pay += (
+                                  $worked_hours *
+                                  $hourly_rate *
+                                  1.30
+                                );
+                            }
                         }
                       }
 
-                      // =====================================================
-                      // BASE PAY
-                      // =====================================================
+                      // =====================================
+                      // NORMAL DAY BASE PAY ONLY
+                      // =====================================
 
-                      $base_pay = (
-                        $total_worked_hours * $hourly_rate
-                      );
+                      if(!$isHoliday){
 
-                      // =====================================================
-                      // OVERTIME
-                      // =====================================================
+                        $base_pay += (
+                          $worked_hours * $hourly_rate
+                        );
+                      }
+                    }
 
-                      $otsql = "SELECT SUM(hours * rate) AS overtime_pay
-                                FROM overtime
-                                WHERE employee_id='$empid'
-                                AND date_overtime BETWEEN '$from' AND '$to'";
+                    // =========================================
+                    // HOLIDAYS WITHOUT ATTENDANCE
+                    // =========================================
 
-                      $otquery = $conn->query($otsql);
+                    $holidaysql = "SELECT *
+                                   FROM holidays
+                                   WHERE holiday_date BETWEEN '$from' AND '$to'";
 
-                      $otrow = $otquery->fetch_assoc();
+                    $holidayquery = $conn->query($holidaysql);
 
-                      $overtime = $otrow['overtime_pay']
-                                   ? $otrow['overtime_pay']
-                                   : 0;
+                    while($holidayrow = $holidayquery->fetch_assoc()){
 
-                      // =====================================================
-                      // CASH ADVANCE
-                      // =====================================================
+                      $holiday_date = $holidayrow['holiday_date'];
+                      $holiday_type = strtolower($holidayrow['type']);
 
-                      $casql = "SELECT SUM(amount) AS cashamount
-                                FROM cashadvance
-                                WHERE employee_id='$empid'
-                                AND date_advance BETWEEN '$from' AND '$to'";
+                      if(in_array($holiday_date, $processed_holidays)){
+                        continue;
+                      }
 
-                      $caquery = $conn->query($casql);
+                      // REGULAR HOLIDAY ABSENT = PAID
 
-                      $carow = $caquery->fetch_assoc();
+                      if($holiday_type == 'regular'){
 
-                      $cashadvance = $carow['cashamount']
-                                      ? $carow['cashamount']
-                                      : 0;
+                        $holiday_pay += $daily_rate;
+                      }
+                    }
 
-                      // =====================================================
-                      // GROSS PAY
-                      // =====================================================
+                    // =========================================
+                    // OVERTIME
+                    // =========================================
 
-                      $gross = $base_pay + $overtime;
+                    $otsql = "SELECT SUM(hours * rate) AS overtime_pay
+                              FROM overtime
+                              WHERE employee_id='$empid'
+                              AND date_overtime BETWEEN '$from' AND '$to'";
 
-                      // =====================================================
-// EMPLOYEE SELECTED DEDUCTIONS
-// =====================================================
+                    $otquery = $conn->query($otsql);
+
+                    $otrow = $otquery->fetch_assoc();
+
+                    $overtime = $otrow['overtime_pay']
+                                 ? $otrow['overtime_pay']
+                                 : 0;
+
+                    // =========================================
+                    // CASH ADVANCE
+                    // =========================================
+
+                    $casql = "SELECT SUM(amount) AS cashamount
+                              FROM cashadvance
+                              WHERE employee_id='$empid'
+                              AND date_advance BETWEEN '$from' AND '$to'";
+
+                    $caquery = $conn->query($casql);
+
+                    $carow = $caquery->fetch_assoc();
+
+                    $cashadvance = $carow['cashamount']
+                                    ? $carow['cashamount']
+                                    : 0;
+
+                    // =========================================
+                    // GROSS PAY
+                    // =========================================
+
+                    $gross = $base_pay + $holiday_pay + $overtime;
+
+                    // =========================================
+// GOVERNMENT DEDUCTIONS
+// =========================================
 
 $government_deduction = 0;
 
@@ -331,127 +425,130 @@ while($drow = $dquery->fetch_assoc()){
     $amount = $drow['amount'];
     $type = strtolower($drow['type']);
 
-    // ===============================
-    // IF PERCENTAGE
-    // ===============================
-
     if($type == 'percent' || $type == 'percentage'){
 
-        $computed = $monthly_salary * ($amount / 100);
+        $computed =
+            $monthly_salary * ($amount / 100);
+
     }
-
-    // ===============================
-    // FIXED
-    // ===============================
-
     else{
 
         $computed = $amount;
     }
-
-    // ===============================
-    // SEMI-MONTHLY DIVISION
-    // ===============================
-    // Monthly deduction divided by 2
 
     $computed = $computed / 2;
 
     $government_deduction += $computed;
 }
 
-// =====================================================
-// TAX (MONTHLY -> SEMI MONTHLY)
-// =====================================================
 
-// compute monthly tax
-$monthly_tax = compute_tax($monthly_salary);
+// =========================================
+// EMPLOYEE DEDUCTIONS (CUSTOM)
+// =========================================
 
-// divide into semi-monthly
-$tax = $monthly_tax / 2;
+$employee_deduction = 0;
 
-// =====================================================
-// TOTAL DEDUCTIONS
-// =====================================================
+$edsql = "
+    SELECT SUM(amount) AS employee_deduction
+    FROM employee_deductions
+    WHERE employee_id='$empid'
+    AND created_on BETWEEN '$from' AND '$to'
+";
 
-$total_deduction = $government_deduction
+$edquery = $conn->query($edsql);
+
+$edrow = $edquery->fetch_assoc();
+
+$employee_deduction = !empty($edrow['employee_deduction'])
+    ? $edrow['employee_deduction']
+    : 0;
+
+                    // =========================================
+                    // TAX
+                    // =========================================
+
+                    $semi_monthly_salary = $monthly_salary / 2;
+
+                    $tax = compute_tax($semi_monthly_salary);
+
+                    // =========================================
+                    // TOTAL DEDUCTIONS
+                    // =========================================
+
+                    $total_deduction = $government_deduction
+                  + $employee_deduction
                   + $cashadvance
                   + $late_deduction
                   + $tax;
 
-// =====================================================
-// NET PAY
-// =====================================================
+                    // =========================================
+                    // NET PAY
+                    // =========================================
 
-$net = $gross - $total_deduction;
+                    $net = $gross - $total_deduction;
 
-                      $net = $gross - $total_deduction;
+                    echo "
+                      <tr>
 
-                      echo "
-                        <tr>
+                        <td>
+                          ".$row['lastname'].",
+                          ".$row['firstname']."
+                        </td>
 
-                          <td>
-                            ".$row['lastname'].",
-                            ".$row['firstname']."
-                          </td>
+                        <td>
+                          ".$row['employee_id']."
+                        </td>
 
-                          <td>
-                            ".$row['employee_id']."
-                          </td>
+                        <td>
+                          ".number_format($monthly_salary, 2)."
+                        </td>
 
-                          <td>
-                            ".number_format($monthly_salary, 2)."
-                          </td>
+                        <td>
+                          ".$days_present."
+                        </td>
 
-                          <td>
-                            ".$days_present."
-                          </td>
+                        <td>
+                          ".number_format($total_worked_hours, 2)."
+                        </td>
 
-                          <td>
-                            ".number_format($total_worked_hours, 2)."
-                          </td>
+                        <td>
+                          ".number_format($base_pay, 2)."
+                        </td>
 
-                          <td>
-                            ".number_format($base_pay, 2)."
-                          </td>
+                        <td>
+                          ".number_format($overtime, 2)."
+                        </td>
 
-                          <td>
-                            ".number_format($overtime, 2)."
-                          </td>
+                        <td>
+                          ".number_format($holiday_pay, 2)."
+                        </td>
 
-                          <td>
-                            ".number_format($late_deduction, 2)."
-                          </td>
+                        <td>
+                          <b>".number_format($total_deduction, 2)."</b>
+                        </td>
 
-                          <td>
-  ".number_format($government_deduction, 2)."
-</td>
+                        <td>
+                          <b>".number_format($net, 2)."</b>
+                        </td>
 
-<td>
-  ".number_format($tax, 2)."
-</td>
+                      </tr>
+                    ";
+                  }
 
-<td>
-  ".number_format($cashadvance, 2)."
-</td>
-
-                          <td>
-                            <b>".number_format($net, 2)."</b>
-                          </td>
-
-                        </tr>
-                      ";
-                    }
-
-                  ?>
+                ?>
 
                 </tbody>
 
               </table>
 
+              </div>
+
             </div>
+
           </div>
 
         </div>
+
       </div>
 
     </section>
