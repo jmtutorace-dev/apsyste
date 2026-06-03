@@ -5,19 +5,17 @@
           	<div class="modal-header">
             	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
               		<span aria-hidden="true">&times;</span></button>
-            	<h4 class="modal-title"><b>Add Position</b></h4>
+            	<h4 class="modal-title"><b>Add Salary</b></h4>
           	</div>
           	<div class="modal-body">
             	<form class="form-horizontal" method="POST" action="position_add.php">
-          		  <div class="form-group">
-                  	<label for="title" class="col-sm-3 control-label">Position Title</label>
-
-                  	<div class="col-sm-9">
-                    	<input type="text" class="form-control" id="title" name="title" required>
-                  	</div>
-                </div>
+          		  <input type="hidden"
+       name="title"
+       value="<?php echo $position; ?>">
                 <div class="form-group">
-                    <label for="rate" class="col-sm-3 control-label">Rate per Hr</label>
+                    <label for="rate" class="col-sm-3 control-label">
+    Monthly Salary
+</label>
 
                     <div class="col-sm-9">
                       <input type="text" class="form-control" id="rate" name="rate" required>

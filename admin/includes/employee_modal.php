@@ -58,20 +58,61 @@
                     </div>
                 </div>
                  <div class="form-group">
-                    <label for="position" class="col-sm-3 control-label">Position</label>
-                    <div class="col-sm-9">
-                      <select class="form-control" name="position" id="position" required>
-                        <option value="" selected>- Select -</option>
-                        <?php
-                          $sql = "SELECT * FROM position";
-                          $query = $conn->query($sql);
-                          while($prow = $query->fetch_assoc()){
-                            echo "<option value='".$prow['id']."'>".$prow['description']."</option>";
-                          }
-                        ?>
-                      </select>
-                    </div>
-                </div>
+                    <div class="form-group">
+    <label class="col-sm-3 control-label">Position</label>
+
+    <div class="col-sm-9">
+        <select class="form-control" id="position_name">
+
+    <option value="">
+        - Select Position -
+    </option>
+
+    <?php
+
+    $sql = "
+        SELECT DISTINCT description
+        FROM position
+        ORDER BY description ASC
+    ";
+
+    $query = $conn->query($sql);
+
+    while($row = $query->fetch_assoc()){
+
+        echo "
+            <option value='".$row['description']."'>
+                ".$row['description']."
+            </option>
+        ";
+    }
+
+    ?>
+
+</select>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-3 control-label">
+        Salary Package
+    </label>
+
+    <div class="col-sm-9">
+
+        <select class="form-control"
+                name="position"
+                id="salary_package"
+                required>
+
+            <option value="">
+                Select Position First
+            </option>
+
+        </select>
+
+    </div>
+</div>
 
                 <!-- ===================== -->
                 <!-- ONLY ADDITION STARTS -->
@@ -255,14 +296,18 @@
                       <select class="form-control" name="position" id="edit_position">
                         <option selected id="position_val"></option>
                         <?php
-                          $sql = "SELECT * FROM position";
-                          $query = $conn->query($sql);
-                          while($prow = $query->fetch_assoc()){
-                            echo "
-                              <option value='".$prow['id']."'>".$prow['description']."</option>
-                            ";
-                          }
-                        ?>
+$sql = "SELECT * FROM position ORDER BY description ASC, rate ASC";
+$query = $conn->query($sql);
+
+while($prow = $query->fetch_assoc()){
+
+    echo "
+      <option value='".$prow['id']."'>
+        ".$prow['description']." - ₱".number_format($prow['rate'],2)."
+      </option>
+    ";
+}
+?>
                       </select>
                     </div>
                 </div>
@@ -443,3 +488,4 @@
         </div>
     </div>
 </div>    
+

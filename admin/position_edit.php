@@ -18,6 +18,6 @@
 		$_SESSION['error'] = 'Fill up edit form first';
 	}
 
-	header('location:position.php');
+	header('location: position_packages.php?position='.urlencode($title));
 
 ?>

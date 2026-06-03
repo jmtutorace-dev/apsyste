@@ -1,20 +1,31 @@
 <?php
-	include 'includes/session.php';
+include 'includes/session.php';
 
-	if(isset($_POST['delete'])){
-		$id = $_POST['id'];
-		$sql = "DELETE FROM position WHERE id = '$id'";
-		if($conn->query($sql)){
-			$_SESSION['success'] = 'Position deleted successfully';
-		}
-		else{
-			$_SESSION['error'] = $conn->error;
-		}
-	}
-	else{
-		$_SESSION['error'] = 'Select item to delete first';
-	}
+if(isset($_POST['delete'])){
 
-	header('location: position.php');
-	
+    $id = $_POST['id'];
+
+    // GET POSITION NAME FIRST
+    $sql = "SELECT description FROM position WHERE id='$id'";
+    $query = $conn->query($sql);
+    $row = $query->fetch_assoc();
+
+    $title = $row['description'];
+
+    // DELETE RECORD
+    $sql = "DELETE FROM position WHERE id='$id'";
+
+    if($conn->query($sql)){
+        $_SESSION['success'] = 'Salary deleted successfully';
+    }
+    else{
+        $_SESSION['error'] = $conn->error;
+    }
+
+    header('location: position_packages.php?position='.urlencode($title));
+}
+else{
+    $_SESSION['error'] = 'Select item to delete first';
+    header('location: position.php');
+}
 ?>

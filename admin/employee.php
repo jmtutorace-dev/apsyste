@@ -569,6 +569,33 @@ $(document).on('change', '#deptFilter', function(){
 </script>
 
 <?php include 'includes/datatable_initializer.php'; ?>
+<script>
+
+$(document).on('change', '#position_name', function(){
+
+    var position_name = $(this).val();
+
+    $.ajax({
+
+        url: 'ajax_position_salary.php',
+        type: 'POST',
+
+        data: {
+            position_name: position_name
+        },
+
+        success: function(data){
+
+            $('#salary_package').html(data);
+
+        }
+
+    });
+
+});
+
+
+</script>
 
 </body>
 </html>

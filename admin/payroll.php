@@ -404,64 +404,64 @@
 
                     $gross = $base_pay + $holiday_pay + $overtime;
 
+                                        // =========================================
+                    // GOVERNMENT DEDUCTIONS
                     // =========================================
-// GOVERNMENT DEDUCTIONS
-// =========================================
 
-$government_deduction = 0;
+                    $government_deduction = 0;
 
-$dsql = "SELECT deductions.*
-         FROM employee_deductions
+                    $dsql = "SELECT deductions.*
+                            FROM employee_deductions
 
-         LEFT JOIN deductions
-         ON deductions.id = employee_deductions.deduction_id
+                            LEFT JOIN deductions
+                            ON deductions.id = employee_deductions.deduction_id
 
-         WHERE employee_deductions.employee_id = '$empid'";
+                            WHERE employee_deductions.employee_id = '$empid'";
 
-$dquery = $conn->query($dsql);
+                    $dquery = $conn->query($dsql);
 
-while($drow = $dquery->fetch_assoc()){
+                    while($drow = $dquery->fetch_assoc()){
 
-    $amount = $drow['amount'];
-    $type = strtolower($drow['type']);
+                        $amount = $drow['amount'];
+                        $type = strtolower($drow['type']);
 
-    if($type == 'percent' || $type == 'percentage'){
+                        if($type == 'percent' || $type == 'percentage'){
 
-        $computed =
-            $monthly_salary * ($amount / 100);
+                            $computed =
+                                $monthly_salary * ($amount / 100);
 
-    }
-    else{
+                        }
+                        else{
 
-        $computed = $amount;
-    }
+                            $computed = $amount;
+                        }
 
-    $computed = $computed / 2;
+                        $computed = $computed / 2;
 
-    $government_deduction += $computed;
-}
+                        $government_deduction += $computed;
+                    }
 
 
-// =========================================
-// EMPLOYEE DEDUCTIONS (CUSTOM)
-// =========================================
+                  // =========================================
+                  // EMPLOYEE DEDUCTIONS (CUSTOM)
+                  // =========================================
 
-$employee_deduction = 0;
+                  $employee_deduction = 0;
 
-$edsql = "
-    SELECT SUM(amount) AS employee_deduction
-    FROM employee_deductions
-    WHERE employee_id='$empid'
-    AND created_on BETWEEN '$from' AND '$to'
-";
+                  $edsql = "
+                      SELECT SUM(amount) AS employee_deduction
+                      FROM employee_deductions
+                      WHERE employee_id='$empid'
+                      AND created_on BETWEEN '$from' AND '$to'
+                  ";
 
-$edquery = $conn->query($edsql);
+                  $edquery = $conn->query($edsql);
 
-$edrow = $edquery->fetch_assoc();
+                  $edrow = $edquery->fetch_assoc();
 
-$employee_deduction = !empty($edrow['employee_deduction'])
-    ? $edrow['employee_deduction']
-    : 0;
+                  $employee_deduction = !empty($edrow['employee_deduction'])
+                      ? $edrow['employee_deduction']
+                      : 0;
 
                     // =========================================
                     // TAX

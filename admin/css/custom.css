@@ -1,33 +1,48 @@
-/* Main Menu */
-.sidebar-menu > li > a{
-    white-space:normal !important;
-    word-wrap:break-word;
-    overflow-wrap:break-word;
-    line-height:18px;
-    height:auto !important;
+/* =========================
+   PROFESSIONAL SIDEBAR FIX (REAL IMPROVEMENT)
+========================= */
+
+/* Main menu item layout */
+.sidebar-menu > li > a {
+    display: flex;
+    align-items: center;
+    white-space: normal;
+    line-height: 1.4;
+    padding: 12px 15px;
+    gap: 10px;
 }
 
-/* Sub Menu */
-.treeview-menu > li > a{
-    white-space:normal !important;
-    word-wrap:break-word;
-    overflow-wrap:break-word;
-    line-height:18px;
-    height:auto !important;
+/* Icon fix */
+.sidebar-menu > li > a > i {
+    min-width: 20px;
+    text-align: center;
 }
 
-/* Prevent arrow from covering text */
-.sidebar-menu .pull-right-container{
-    right:10px;
+/* Text wraps properly */
+.sidebar-menu > li > a > span {
+    flex: 1;
+    word-break: break-word;
 }
 
-/* User panel name fix */
-.user-panel .info{
-    white-space:normal;
-    word-break:break-word;
+/* Submenu */
+.treeview-menu > li > a {
+    white-space: normal;
+    line-height: 1.4;
+    padding: 10px 15px 10px 45px;
 }
 
-/* Long submenu items */
-.treeview-menu{
-    overflow:hidden;
-}   
+/* Arrow alignment */
+.sidebar-menu .pull-right-container {
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Better hover feel */
+.sidebar-menu > li > a {
+    transition: all 0.2s ease;
+}
+
+.sidebar-menu > li:hover > a {
+    padding-left: 18px;
+}
