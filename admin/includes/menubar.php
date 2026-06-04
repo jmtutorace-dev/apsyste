@@ -247,6 +247,12 @@
 
             </li>
 
+            <li>
+    <a href="thirteenth_month.php">
+        <i class="fa fa-money"></i>
+        <span>13th Month Pay</span>
+    </a>
+</li>
             <!-- SCHEDULE -->
             <li class="<?php echo ($page == 'schedule_employee.php') ? 'active' : ''; ?>">
 
