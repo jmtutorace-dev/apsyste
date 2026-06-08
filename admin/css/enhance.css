@@ -1,0 +1,70 @@
+/* =====================================================================
+   ACE ADMIN — UX POLISH LAYER
+   Loaded after the base theme; small refinements for interaction quality
+   and consistency. Keep additive — don't fight the base theme.
+   ===================================================================== */
+
+/* Flash alerts: subtle slide-in */
+.content > .alert,
+.content-header > .alert{
+    animation: aceFade .35s ease;
+    border-radius:12px;
+}
+@keyframes aceFade{
+    from{ opacity:0; transform:translateY(-6px); }
+    to{   opacity:1; transform:none; }
+}
+
+/* Page content gentle fade-in */
+.content-wrapper{ animation: aceContent .25s ease; }
+@keyframes aceContent{ from{ opacity:.65; } to{ opacity:1; } }
+
+/* Buttons: consistent disabled + spinner */
+.btn[disabled], .btn.disabled{ opacity:.65; cursor:not-allowed; }
+.btn .fa-spin{ margin-right:5px; }
+
+/* Inputs: clear focus ring everywhere */
+.form-control:focus{
+    border-color:#36a2eb;
+    box-shadow:0 0 0 4px rgba(54,162,235,.12);
+}
+
+/* Modal close button visible on the gradient header */
+.modal-header .close{
+    color:#fff; opacity:.9; text-shadow:none; font-size:24px; line-height:1;
+}
+.modal-header .close:hover{ opacity:1; }
+
+/* DataTables controls — tidy + on-brand */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select{
+    border:1px solid #dde6f0; border-radius:8px; height:34px; padding:0 10px; box-shadow:none;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button{
+    border-radius:8px !important; padding:4px 11px !important; margin:0 2px; border:none !important;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover{
+    background:#2196f3 !important; color:#fff !important; box-shadow:none;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover{
+    background:#e9f1f8 !important; color:#14324b !important;
+}
+.dataTables_wrapper .dataTables_info{ color:#7b8a9a; font-size:12px; padding-top:14px; }
+
+/* Status pills */
+.label{ font-weight:600; padding:.34em .7em; border-radius:6px; font-size:11px; letter-spacing:.3px; }
+
+/* Empty-state helper (for tables/sections with no data) */
+.empty-state{ text-align:center; padding:42px 20px; color:#9aa7b4; }
+.empty-state i{ font-size:46px; opacity:.4; display:block; margin-bottom:12px; }
+
+/* Sidebar avatar ring */
+.user-panel > .image > img{ border:2px solid rgba(255,255,255,.22); }
+
+/* Responsive: stack action buttons + smaller heading on phones */
+@media (max-width:768px){
+    td .btn{ width:100%; margin-bottom:6px; }
+    .content-header h1{ font-size:20px; }
+    .box-body{ padding:16px; }
+}

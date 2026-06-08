@@ -1,10 +1,9 @@
-```php
 <?php
 include 'includes/session.php';
 
 if(isset($_POST['edit'])){
 
-    $empid = $_POST['id'];
+    $empid = intval($_POST['id']);
 
     if(empty($empid)){
         $_SESSION['error'] = "Employee ID missing";
@@ -12,46 +11,44 @@ if(isset($_POST['edit'])){
         exit();
     }
 
-    $firstname = $_POST['firstname'];
-    $lastname = $_POST['lastname'];
-    $address = $_POST['address'];
-    $birthdate = $_POST['birthdate'];
-    $contact = $_POST['contact'];
-    $gender = $_POST['gender'];
-    $position = $_POST['position'];
-    $schedule = $_POST['schedule'];
-    $department = $_POST['department'];
+    $firstname    = trim($_POST['firstname']);
+    $lastname     = trim($_POST['lastname']);
+    $biometric_id = trim($_POST['biometric_id']);
+    $address      = trim($_POST['address']);
+    $birthdate    = $_POST['birthdate'];
+    $contact      = trim($_POST['contact']);
+    $gender       = $_POST['gender'];
+    $position     = intval($_POST['position']);
+    $schedule     = intval($_POST['schedule']);
+    $department   = trim($_POST['department']);
 
-    $sql = "UPDATE employees SET 
-        firstname='$firstname',
-        lastname='$lastname',
-        address='$address',
-        birthdate='$birthdate',
-        contact_info='$contact',
-        gender='$gender',
-        position_id='$position',
-        schedule_id='$schedule',
-        department='$department'
-    WHERE id='$empid'";
+    $stmt = $conn->prepare("UPDATE employees SET
+        firstname=?, lastname=?, biometric_id=?, address=?, birthdate=?,
+        contact_info=?, gender=?, position_id=?, schedule_id=?, department=?
+        WHERE id=?");
 
-    if($conn->query($sql)){
+    $stmt->bind_param(
+        'sssssssiiii',
+        $firstname, $lastname, $biometric_id, $address, $birthdate,
+        $contact, $gender, $position, $schedule, $department, $empid
+    );
+
+    if($stmt->execute()){
 
         // DELETE OLD DEDUCTIONS
-        $conn->query("DELETE FROM employee_deductions WHERE employee_id='$empid'");
+        $del = $conn->prepare("DELETE FROM employee_deductions WHERE employee_id=?");
+        $del->bind_param('i', $empid);
+        $del->execute();
 
         // INSERT NEW DEDUCTIONS
         if(isset($_POST['deductions'])){
 
+            $ins = $conn->prepare("INSERT INTO employee_deductions (employee_id, deduction_id) VALUES (?, ?)");
+
             foreach($_POST['deductions'] as $deduction_id){
-
                 $deduction_id = intval($deduction_id);
-
-                $sql2 = "INSERT INTO employee_deductions 
-                        (employee_id, deduction_id)
-                        VALUES 
-                        ('$empid', '$deduction_id')";
-
-                $conn->query($sql2);
+                $ins->bind_param('ii', $empid, $deduction_id);
+                $ins->execute();
             }
         }
 
@@ -59,7 +56,7 @@ if(isset($_POST['edit'])){
 
     }
     else{
-        $_SESSION['error'] = $conn->error;
+        $_SESSION['error'] = "Could not update employee. Please try again.";
     }
 
 }
@@ -68,5 +65,5 @@ else{
 }
 
 header('location: employee.php');
+exit();
 ?>
-```

@@ -1,19 +1,27 @@
 <?php
 	include 'includes/session.php';
+	include 'includes/upload_photo.php';
 
 	if(isset($_POST['upload'])){
-		$empid = $_POST['id'];
-		$filename = $_FILES['photo']['name'];
-		if(!empty($filename)){
-			move_uploaded_file($_FILES['photo']['tmp_name'], '../images/'.$filename);	
+
+		$empid = intval($_POST['id']);
+
+		$filename = isset($_FILES['photo']) ? save_employee_photo($_FILES['photo']) : null;
+
+		if($filename === null){
+			$_SESSION['error'] = 'Please choose a valid image file (jpg, png, gif).';
+			header('location: employee.php');
+			exit();
 		}
-		
-		$sql = "UPDATE employees SET photo = '$filename' WHERE id = '$empid'";
-		if($conn->query($sql)){
+
+		$stmt = $conn->prepare("UPDATE employees SET photo = ? WHERE id = ?");
+		$stmt->bind_param('si', $filename, $empid);
+
+		if($stmt->execute()){
 			$_SESSION['success'] = 'Employee photo updated successfully';
 		}
 		else{
-			$_SESSION['error'] = $conn->error;
+			$_SESSION['error'] = 'Could not update photo. Please try again.';
 		}
 
 	}
@@ -22,4 +30,5 @@
 	}
 
 	header('location: employee.php');
+	exit();
 ?>

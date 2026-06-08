@@ -2,7 +2,7 @@
 
 include 'includes/session.php';
 
-$id = $_GET['id'];
+$id = intval($_GET['id']);
 
 $sql = "DELETE FROM holidays WHERE id='$id'";
 

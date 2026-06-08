@@ -104,9 +104,9 @@
     echo "
 <tr>
 
-    <td>".$row['firstname']." ".$row['lastname']."</td>
+    <td>".htmlspecialchars($row['firstname'].' '.$row['lastname'], ENT_QUOTES, 'UTF-8')."</td>
 
-    <td>".$row['deduction_name']."</td>
+    <td>".htmlspecialchars($row['deduction_name'], ENT_QUOTES, 'UTF-8')."</td>
 
     <td>₱".number_format($row['amount'],2)."</td>
 

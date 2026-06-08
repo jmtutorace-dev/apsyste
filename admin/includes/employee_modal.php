@@ -24,6 +24,13 @@
                   	</div>
                 </div>
                 <div class="form-group">
+                  	<label for="biometric_id" class="col-sm-3 control-label">Biometric ID</label>
+
+                  	<div class="col-sm-9">
+                    	<input type="text" class="form-control" id="biometric_id" name="biometric_id" placeholder="Staff Code from device (e.g. 00000001)">
+                  	</div>
+                </div>
+                <div class="form-group">
                   	<label for="address" class="col-sm-3 control-label">Address</label>
 
                   	<div class="col-sm-9">
@@ -57,7 +64,6 @@
                       </select>
                     </div>
                 </div>
-                 <div class="form-group">
                     <div class="form-group">
     <label class="col-sm-3 control-label">Position</label>
 
@@ -254,6 +260,13 @@
 
                     <div class="col-sm-9">
                       <input type="text" class="form-control" id="edit_lastname" name="lastname">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit_biometric_id" class="col-sm-3 control-label">Biometric ID</label>
+
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" id="edit_biometric_id" name="biometric_id" placeholder="Staff Code from device (e.g. 00000001)">
                     </div>
                 </div>
                 <div class="form-group">

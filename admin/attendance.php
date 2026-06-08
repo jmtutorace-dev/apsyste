@@ -37,6 +37,9 @@
               <a href="#addnew" data-toggle="modal" class="btn btn-primary btn-sm btn-flat">
                 <i class="fa fa-plus"></i> New
               </a>
+              <a href="#import_biometric" data-toggle="modal" class="btn btn-success btn-sm btn-flat">
+                <i class="fa fa-upload"></i> Import Biometric (CSV)
+              </a>
             </div>
 
             <div class="box-body">
@@ -225,7 +228,7 @@
 #example1_filter{
   white-space: nowrap;
   width: 100%;
-  margin-left: -40px;
+  margin-left: 0;
 }
 
 #example1_filter label{

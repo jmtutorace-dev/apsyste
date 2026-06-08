@@ -266,6 +266,21 @@
 
             </li>
 
+            <!-- SYSTEM -->
+            <li class="header">SYSTEM</li>
+
+            <li class="<?php echo ($page == 'settings.php') ? 'active' : ''; ?>">
+
+                <a href="settings.php">
+
+                    <i class="fa fa-cogs"></i>
+
+                    <span>Settings</span>
+
+                </a>
+
+            </li>
+
         </ul>
 
     </section>

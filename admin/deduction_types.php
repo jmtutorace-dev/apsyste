@@ -93,9 +93,9 @@
 
                                         <td>".$row['id']."</td>
 
-                                        <td>".$row['deduction_name']."</td>
+                                        <td>".htmlspecialchars($row['deduction_name'], ENT_QUOTES, 'UTF-8')."</td>
 
-                                        <td>".$row['description']."</td>
+                                        <td>".htmlspecialchars($row['description'], ENT_QUOTES, 'UTF-8')."</td>
 
                                         <td>
 

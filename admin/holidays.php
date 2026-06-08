@@ -247,11 +247,11 @@ $special = $conn->query("SELECT COUNT(*) total FROM holidays WHERE type='Special
 
                     <td><?php echo date('F d, Y', strtotime($row['holiday_date'])); ?></td>
 
-                    <td><strong><?php echo $row['description']; ?></strong></td>
+                    <td><strong><?php echo htmlspecialchars($row['description'], ENT_QUOTES, 'UTF-8'); ?></strong></td>
 
                     <td>
                         <span class="label <?php echo $label; ?>">
-                            <?php echo $row['type']; ?>
+                            <?php echo htmlspecialchars($row['type'], ENT_QUOTES, 'UTF-8'); ?>
                         </span>
                     </td>
 

@@ -1,5 +1,7 @@
 <?php
 
+if(!function_exists('compute_tax')){
+
 function compute_tax($salary) {
 
     $tax = 0;
@@ -25,4 +27,5 @@ function compute_tax($salary) {
 
     return round($tax, 2);
 }
-?>
+
+} // function_exists guard

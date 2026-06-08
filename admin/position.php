@@ -129,7 +129,7 @@ while($row = $query->fetch_assoc()){
 
     <td>
         <strong>
-            <?php echo $row['description']; ?>
+            <?php echo htmlspecialchars($row['description'], ENT_QUOTES, 'UTF-8'); ?>
         </strong>
     </td>
 

@@ -13,11 +13,11 @@
 }
 
 .box{
-    border:none;
-    border-radius:18px;
+    border:1px solid #eef2f7;
+    border-radius:12px;
     overflow:hidden;
     background:#ffffff;
-    box-shadow:0 6px 18px rgba(0,0,0,0.05);
+    box-shadow:0 1px 3px rgba(17,24,39,0.04);
 }
 
 .box-header{
@@ -272,12 +272,12 @@ while($row = $query->fetch_assoc()){
 ?>
 
 <tr class="employee-row"
-    data-id="<?php echo $row['empid']; ?>"
-    data-dept="<?php echo $row['department']; ?>"
+    data-id="<?php echo (int)$row['empid']; ?>"
+    data-dept="<?php echo htmlspecialchars($row['department'], ENT_QUOTES, 'UTF-8'); ?>"
     style="cursor:pointer;">
 
     <td>
-        <?php echo $row['employee_id']; ?>
+        <?php echo htmlspecialchars($row['employee_id'], ENT_QUOTES, 'UTF-8'); ?>
     </td>
 
     <td>
@@ -299,11 +299,11 @@ while($row = $query->fetch_assoc()){
     </td>
 
     <td>
-        <?php echo $row['firstname'].' '.$row['lastname']; ?>
+        <?php echo htmlspecialchars($row['firstname'].' '.$row['lastname'], ENT_QUOTES, 'UTF-8'); ?>
     </td>
 
     <td>
-        <?php echo $row['position_name']; ?>
+        <?php echo htmlspecialchars($row['position_name'], ENT_QUOTES, 'UTF-8'); ?>
     </td>
 
     <td>
@@ -317,7 +317,7 @@ while($row = $query->fetch_assoc()){
     </td>
 
     <td>
-        <?php echo $row['department']; ?>
+        <?php echo htmlspecialchars($row['department'], ENT_QUOTES, 'UTF-8'); ?>
     </td>
 
     <td>
@@ -339,6 +339,14 @@ while($row = $query->fetch_assoc()){
             Delete
 
         </button>
+
+        <a href="employee_reset_password.php?id=<?php echo (int)$row['empid']; ?>"
+           class="btn btn-warning btn-sm"
+           onclick="return confirm('Reset this employee\'s portal password to the default (123456)?');">
+
+            Reset PW
+
+        </a>
 
     </td>
 
@@ -468,10 +476,23 @@ function getRow(id){
 
         success:function(response){
 
+            if(!response || response.error){
+                alert('Could not load the employee record. Please refresh and try again.');
+                $('#edit').modal('hide');
+                $('#delete').modal('hide');
+                return;
+            }
+
             $('.empid').val(response.empid);
+
+            // Modal titles + delete confirmation name (escaped via .text())
+            var fullname = (response.firstname || '') + ' ' + (response.lastname || '');
+            $('.employee_id').text(fullname);
+            $('.del_employee_name').text(fullname);
 
             $('#edit_firstname').val(response.firstname);
             $('#edit_lastname').val(response.lastname);
+            $('#edit_biometric_id').val(response.biometric_id);
             $('#edit_address').val(response.address);
             $('#datepicker_edit').val(response.birthdate);
             $('#edit_contact').val(response.contact_info);
@@ -494,6 +515,12 @@ function getRow(id){
                     $('#deduction_container').html(html);
                 }
             });
+        },
+
+        error: function(){
+            alert('Could not load the employee record. Please refresh and try again.');
+            $('#edit').modal('hide');
+            $('#delete').modal('hide');
         }
     });
 }

@@ -148,3 +148,55 @@ $(function () {
 
 });
 </script>
+
+<!-- ============================================================
+     SITE-WIDE UX ENHANCEMENTS
+     ============================================================ -->
+<script>
+$(function () {
+
+    /* 1) Flash messages: guarantee a close button + auto-dismiss success/info */
+    $('.content .alert, .content-header .alert').each(function () {
+        var $a = $(this);
+        if (!$a.find('.close').length) {
+            $a.addClass('alert-dismissible')
+              .prepend('<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>');
+        }
+        if ($a.hasClass('alert-success') || $a.hasClass('alert-info')) {
+            setTimeout(function () { $a.fadeOut(400, function () { $(this).remove(); }); }, 4500);
+        }
+    });
+
+    /* 2) Robust active sidebar link (matches by file name, ignores ?query) */
+    var path = (window.location.pathname.split('/').pop() || 'home.php');
+    $('ul.sidebar-menu li > a').each(function () {
+        var href = ($(this).attr('href') || '').split('/').pop().split('?')[0];
+        if (href && href === path) {
+            $(this).parent().addClass('active');
+            $(this).parents('li.treeview').addClass('active menu-open');
+        }
+    });
+
+    /* 3) Enable Bootstrap tooltips wherever used */
+    $('[data-toggle="tooltip"]').tooltip();
+
+    /* 4) Loading state on CRUD modal submit buttons (real page-reload POSTs).
+          IMPORTANT: defer disabling to the next tick — a button disabled during
+          the submit event is excluded from the POST, which would drop the
+          add/edit/delete name the handlers check for. */
+    $('.modal form').on('submit', function () {
+        var $btn = $(this).find('button[type=submit]').first();
+        if ($btn.length && !$btn.data('busy')) {
+            $btn.data('busy', true).data('label', $btn.html());
+            setTimeout(function () {
+                $btn.prop('disabled', true)
+                    .html('<i class="fa fa-spinner fa-spin"></i> Please wait...');
+            }, 0);
+            setTimeout(function () {            // safety re-enable if the submit is cancelled
+                $btn.prop('disabled', false).html($btn.data('label')).removeData('busy');
+            }, 8000);
+        }
+    });
+
+});
+</script>

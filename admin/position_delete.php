@@ -3,7 +3,7 @@ include 'includes/session.php';
 
 if(isset($_POST['delete'])){
 
-    $id = $_POST['id'];
+    $id = intval($_POST['id']);
 
     // GET POSITION NAME FIRST
     $sql = "SELECT description FROM position WHERE id='$id'";

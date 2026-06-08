@@ -3,7 +3,7 @@ include 'includes/session.php';
 
 if(isset($_POST['delete'])){
 
-  $id = $_POST['id'];
+  $id = intval($_POST['id']);
 
   $stmt = $conn->prepare("DELETE FROM departments WHERE id=?");
   $stmt->bind_param("i", $id);

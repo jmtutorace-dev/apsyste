@@ -1,17 +1,24 @@
 <?php
 	include 'includes/session.php';
 
-	if(isset($_POST['edit'])){
-		$id = $_POST['id'];
-		$title = $_POST['title'];
-		$rate = $_POST['rate'];
+	$title = '';
 
-		$sql = "UPDATE position SET description = '$title', rate = '$rate' WHERE id = '$id'";
-		if($conn->query($sql)){
-			$_SESSION['success'] = 'Position updated successfully';
+	if(isset($_POST['edit'])){
+		$id    = intval($_POST['id']);
+		$title = trim($_POST['title']);
+		$rate  = $_POST['rate'];
+
+		if($title === '' || !is_numeric($rate)){
+			$_SESSION['error'] = 'Please enter a position name and a numeric rate.';
 		}
 		else{
-			$_SESSION['error'] = $conn->error;
+			$stmt = $conn->prepare("UPDATE position SET description = ?, rate = ? WHERE id = ?");
+			$stmt->bind_param('sdi', $title, $rate, $id);
+			if($stmt->execute()){
+				$_SESSION['success'] = 'Position updated successfully';
+			}else{
+				$_SESSION['error'] = 'Operation failed. Please try again.';
+			}
 		}
 	}
 	else{
@@ -19,5 +26,4 @@
 	}
 
 	header('location: position_packages.php?position='.urlencode($title));
-
-?>
+	exit();

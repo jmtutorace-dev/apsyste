@@ -2,7 +2,7 @@
 	include 'includes/session.php';
 
 	if(isset($_POST['delete'])){
-		$id = $_POST['id'];
+		$id = intval($_POST['id']);
 		$sql = "DELETE FROM schedules WHERE id = '$id'";
 		if($conn->query($sql)){
 			$_SESSION['success'] = 'Schedule deleted successfully';

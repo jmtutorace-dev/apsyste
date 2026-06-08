@@ -4,7 +4,7 @@ include 'includes/session.php';
 
 if(isset($_POST['delete'])){
 
-    $id = $_POST['id'];
+    $id = intval($_POST['id']);
 
     $sql = "
         DELETE FROM employee_deductions

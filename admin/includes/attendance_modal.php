@@ -102,6 +102,51 @@
     </div>
 </div>
 
+<!-- Import Biometric CSV -->
+<div class="modal fade" id="import_biometric">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title"><b>Import Biometric Attendance</b></h4>
+            </div>
+            <form method="POST" action="attendance_import.php" enctype="multipart/form-data">
+                <div class="modal-body">
+
+                    <p>Upload the attendance export from your biometric device as a <b>CSV file</b>.</p>
+                    <p class="text-muted" style="font-size:12px;">
+                        In Excel, open the exported file and choose
+                        <b>File &rarr; Save As &rarr; CSV (Comma delimited) (*.csv)</b>, then upload it here.
+                    </p>
+
+                    <div class="form-group">
+                        <label for="csv_file">CSV File</label>
+                        <input type="file" name="csv_file" id="csv_file" accept=".csv" class="form-control" required>
+                    </div>
+
+                    <div class="callout callout-info" style="font-size:12px;">
+                        <p style="margin-bottom:5px;"><b>How it works</b></p>
+                        <ul style="padding-left:18px; margin-bottom:0;">
+                            <li>Employees are matched by their <b>Biometric ID</b> (the device "Staff Code").
+                                Set each employee's Biometric ID on the Employees page first.</li>
+                            <li>For each day, the <b>earliest punch</b> is the Time In and the
+                                <b>latest punch</b> is the Time Out.</li>
+                            <li>Days with no punches are skipped (treated as absent).</li>
+                            <li>Existing records for the same employee and date are <b>overwritten</b>.</li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-flat pull-left" data-dismiss="modal"><i class="fa fa-close"></i> Close</button>
+                    <button type="submit" class="btn btn-success btn-flat" name="import"><i class="fa fa-upload"></i> Import</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Delete -->
 <div class="modal fade" id="delete">
     <div class="modal-dialog">

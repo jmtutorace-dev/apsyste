@@ -1,0 +1,244 @@
+/* =====================================================================
+   ACE EMPLOYEE PORTAL — UI THEME
+   Modern, cohesive look with a teal/emerald identity (distinct from the
+   admin "blue"). Loaded after AdminLTE so it overrides the default skin.
+   ===================================================================== */
+
+:root{
+    --accent:   #0d9488;
+    --accent-2: #14b8a6;
+    --accent-lt:#5eead4;
+    --ink:      #143b38;
+    --muted:    #64748b;
+}
+
+body{
+    font-family:'Poppins', sans-serif;
+    background:#eaf1f0;
+    color:#2b3445;
+}
+
+.content-wrapper{
+    background:linear-gradient(180deg,#eaf1f0 0%, #f6faf9 100%);
+    min-height:100vh;
+}
+
+/* ----------------------------------------------------------- SIDEBAR */
+
+.main-sidebar, .left-side{
+    background:linear-gradient(180deg,#0f3a37 0%, #115e59 100%) !important;
+    box-shadow:2px 0 12px rgba(0,0,0,.05);
+}
+
+.skin-blue .sidebar-menu > li > a{
+    color:rgba(255,255,255,.86);
+    padding:13px 16px;
+    font-size:14px;
+    border-left:3px solid transparent;
+    transition:.2s;
+}
+
+.skin-blue .sidebar-menu > li:hover > a{
+    background:rgba(255,255,255,.10) !important;
+    color:#ffffff !important;
+    border-left:3px solid var(--accent-lt);
+    padding-left:21px;
+}
+
+.skin-blue .sidebar-menu > li.active > a{
+    background:linear-gradient(90deg,#14b8a6,#2dd4bf) !important;
+    color:#06302c !important;
+    font-weight:600;
+    border-radius:0 24px 24px 0;
+    margin-right:10px;
+    border-left:none;
+}
+
+.skin-blue .sidebar-menu > li.header{
+    color:rgba(255,255,255,.55) !important;
+    background:transparent !important;
+    font-size:11px;
+    letter-spacing:1.6px;
+    font-weight:600;
+    padding-top:20px;
+}
+
+.sidebar-menu > li > a > .fa{ width:22px; text-align:center; }
+
+/* USER PANEL */
+.user-panel{ padding:20px 15px; }
+.user-panel > .info > p{ color:#fff; font-weight:600; margin-bottom:2px; }
+.user-panel > .info > a{ color:rgba(255,255,255,.72); font-size:12px; }
+.user-panel > .image > img{ border:2px solid rgba(255,255,255,.25); }
+
+/* ------------------------------------------------------------- NAVBAR */
+
+.skin-blue .main-header .navbar{
+    background:#ffffff !important;
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+
+.skin-blue .main-header .logo{
+    background:#0f3a37 !important;
+    color:#ffffff !important;
+    font-weight:700;
+    letter-spacing:1px;
+}
+.skin-blue .main-header .logo:hover{ background:#0b2c2a !important; }
+
+.skin-blue .main-header .navbar .sidebar-toggle{ color:#0f3a37 !important; }
+.skin-blue .main-header .navbar .sidebar-toggle:hover{
+    background:#eef5f4 !important; color:#0b2c2a !important;
+}
+
+.navbar-nav > .user-menu > a{ color:#2c3e50 !important; font-weight:600; }
+.navbar-nav > .user-menu > a:hover{ background:#f1f8f7 !important; }
+.user-menu .user-image{ border:2px solid var(--accent-lt); }
+
+/* ------------------------------------------------------- CONTENT HEAD */
+
+.content-header{ padding:20px 22px 4px; }
+.content-header > h1{ font-weight:700; color:var(--ink); font-size:24px; margin-top:4px; }
+.content-header > h1 > small{ color:var(--muted); }
+.breadcrumb{ background:transparent; padding:6px 0; margin:0; }
+.breadcrumb > li > a{ color:var(--accent); }
+.breadcrumb > .active{ color:var(--muted); }
+
+/* -------------------------------------------------------------- BOXES */
+
+.box{
+    border:1px solid #e6eeec;
+    border-top:none;
+    border-radius:14px;
+    overflow:hidden;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(17,24,39,.04);
+    transition:box-shadow .2s ease, transform .2s ease;
+}
+.box:hover{ box-shadow:0 8px 22px rgba(17,24,39,.08); }
+
+.box-header{ border-bottom:1px solid #eef3f2; padding:16px 20px; }
+.box-header.with-border{ border-bottom:1px solid #eef3f2; }
+.box-title{ font-size:16px; font-weight:700; color:var(--ink); }
+.box-body{ padding:20px; }
+
+/* --------------------------------------------------------- SMALL BOX */
+
+.small-box{
+    border-radius:14px;
+    overflow:hidden;
+    color:#fff;
+    box-shadow:0 4px 14px rgba(0,0,0,.07);
+    margin-bottom:18px;
+}
+.small-box > .inner{ padding:18px; }
+.small-box h3{ font-weight:700; font-size:28px; margin:0 0 4px; white-space:nowrap; }
+.small-box p{ font-size:13px; opacity:.95; }
+.small-box .icon{ top:14px; right:12px; font-size:60px; opacity:.18; }
+.small-box:hover{ transform:translateY(-2px); transition:transform .2s ease; }
+
+.bg-aqua{   background:linear-gradient(135deg,#14b8a6,#0d9488) !important; }
+.bg-green{  background:linear-gradient(135deg,#22c55e,#16a34a) !important; }
+.bg-yellow{ background:linear-gradient(135deg,#f59e0b,#d97706) !important; }
+.bg-purple{ background:linear-gradient(135deg,#8b5cf6,#7c3aed) !important; }
+
+/* ------------------------------------------------------------- TABLES */
+
+.table{ margin-bottom:0; }
+.table > thead > tr > th{
+    border:none !important;
+    background:#e7f3f1;
+    color:#246b64;
+    text-transform:uppercase;
+    font-size:11px;
+    letter-spacing:.6px;
+    font-weight:700;
+    padding:13px 12px;
+}
+.table > tbody > tr > td{
+    border-top:1px solid #f0f5f4 !important;
+    padding:12px;
+    vertical-align:middle;
+    font-size:13px;
+    color:#33485a;
+}
+.table-striped > tbody > tr:nth-of-type(odd){ background:#fafcfc; }
+.table-hover > tbody > tr:hover,
+.table > tbody > tr:hover{ background:#f0faf8; }
+
+/* DataTables tidy-up */
+.dataTables_wrapper .dataTables_filter input,
+.dataTables_wrapper .dataTables_length select{
+    border:1px solid #dbe6e4; border-radius:8px; height:36px; padding:0 10px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button.current{
+    background:var(--accent) !important; border-color:var(--accent) !important;
+    color:#fff !important; border-radius:6px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button{ border-radius:6px; }
+
+/* ------------------------------------------------------------ BUTTONS */
+
+.btn{
+    border:none !important;
+    border-radius:9px !important;
+    font-weight:600;
+    font-size:13px;
+    padding:9px 16px;
+    letter-spacing:.2px;
+    transition:opacity .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+.btn:hover{ opacity:.93; }
+.btn:active{ transform:translateY(1px); }
+.btn-primary{ background:linear-gradient(135deg,#14b8a6,#0d9488) !important; box-shadow:0 2px 6px rgba(13,148,136,.22); }
+.btn-success{ background:linear-gradient(135deg,#22c55e,#16a34a) !important; box-shadow:0 2px 6px rgba(34,197,94,.22); }
+.btn-warning{ background:linear-gradient(135deg,#f59e0b,#d97706) !important; color:#fff !important; }
+.btn-default{ background:#eef2f4 !important; color:#33485a !important; }
+
+/* stacked block buttons (quick links) get even spacing */
+.box-body .btn-block + .btn-block{ margin-top:12px; }
+
+/* -------------------------------------------------------------- FORMS */
+
+.form-control{
+    height:44px;
+    border-radius:10px;
+    border:1px solid #d9e5e3;
+    box-shadow:none;
+    font-size:13px;
+    background:#fbfdfd;
+}
+.form-control:focus{
+    border-color:var(--accent-2);
+    box-shadow:0 0 0 4px rgba(20,184,166,.12);
+    background:#fff;
+}
+label{ color:#3a4a5a; font-weight:600; font-size:13px; }
+
+/* -------------------------------------------------- LABELS / ALERTS */
+
+.label{ font-weight:600; padding:.32em .7em; border-radius:6px; font-size:11px; }
+.label-success{ background:#16a34a; }
+.label-warning{ background:#d97706; }
+
+.alert{ border-radius:11px; border:none; font-weight:500; }
+.alert-success{ background:#dcfce7; color:#15803d; }
+.alert-danger{ background:#fee2e2; color:#b91c1c; }
+.callout{ border-radius:11px; border:none; font-weight:600; }
+.callout-warning{ background:#fef3c7; color:#92400e; }
+
+/* ------------------------------------------------------------- FOOTER */
+
+.main-footer{
+    background:#ffffff;
+    border-top:1px solid #eef3f2;
+    color:var(--muted);
+    padding:15px 20px;
+    font-size:13px;
+}
+
+/* --------------------------------------------------------- SCROLLBAR */
+
+::-webkit-scrollbar{ width:8px; }
+::-webkit-scrollbar-thumb{ background:#b8cfca; border-radius:20px; }
+::-webkit-scrollbar-track{ background:#e8f0ee; }

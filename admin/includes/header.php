@@ -289,26 +289,24 @@ body{
 
 .box{
 
-    border:none;
+    border:1px solid #eef2f7;
 
-    border-radius:18px;
+    border-radius:12px;
 
     overflow:hidden;
 
     background:#ffffff;
 
     box-shadow:
-        0 8px 25px rgba(17,24,39,0.05);
+        0 1px 3px rgba(17,24,39,0.04);
 
-    transition:.20s;
+    transition:box-shadow .2s ease;
 }
 
 .box:hover{
 
-    transform:translateY(-1px);
-
     box-shadow:
-        0 12px 28px rgba(17,24,39,0.08);
+        0 4px 14px rgba(17,24,39,0.06);
 }
 
 .box-header{
@@ -344,7 +342,7 @@ body{
 
     border-collapse:separate;
 
-    border-spacing:0 8px;
+    border-spacing:0 5px;
 }
 
 /* HEADER */
@@ -372,24 +370,22 @@ body{
 
 .table > tbody > tr{
 
-    background:#fdfefe;
+    background:#ffffff;
 
     box-shadow:
-        0 2px 6px rgba(0,0,0,0.03);
+        0 1px 2px rgba(0,0,0,0.03);
 
-    transition:.2s;
+    transition:background .15s ease;
 }
 
 /* HOVER */
 
 .table > tbody > tr:hover{
 
-    background:#f2f8fd;
-
-    transform:none;
+    background:#f4f9fd;
 
     box-shadow:
-        0 6px 14px rgba(0,0,0,0.05);
+        0 2px 6px rgba(0,0,0,0.05);
 }
 
 /* CELL */
@@ -431,15 +427,15 @@ body{
 
     border:none !important;
 
-    border-radius:12px !important;
+    border-radius:8px !important;
 
     font-weight:600;
 
     font-size:12px;
 
-    padding:9px 15px;
+    padding:8px 15px;
 
-    transition:.20s;
+    transition:opacity .15s ease, box-shadow .15s ease;
 
     letter-spacing:.3px;
 }
@@ -454,7 +450,7 @@ body{
         ) !important;
 
     box-shadow:
-        0 6px 14px rgba(33,150,243,0.16);
+        0 2px 6px rgba(33,150,243,0.22);
 }
 
 .btn-success{
@@ -467,7 +463,7 @@ body{
         ) !important;
 
     box-shadow:
-        0 6px 14px rgba(34,197,94,0.16);
+        0 2px 6px rgba(34,197,94,0.22);
 }
 
 .btn-danger{
@@ -480,7 +476,7 @@ body{
         ) !important;
 
     box-shadow:
-        0 6px 14px rgba(239,68,68,0.16);
+        0 2px 6px rgba(239,68,68,0.22);
 }
 
 .btn-warning{
@@ -504,9 +500,7 @@ body{
 
 .btn:hover{
 
-    transform:translateY(-1px);
-
-    opacity:.96;
+    opacity:.9;
 }
 
 /* BUTTON SPACING */
@@ -526,9 +520,9 @@ td .btn{
 
 .form-control{
 
-    height:44px;
+    height:42px;
 
-    border-radius:12px;
+    border-radius:9px;
 
     border:1px solid #dde6f0;
 
@@ -557,12 +551,12 @@ td .btn{
 
     border:none;
 
-    border-radius:22px;
+    border-radius:14px;
 
     overflow:hidden;
 
     box-shadow:
-        0 16px 45px rgba(0,0,0,0.14);
+        0 12px 40px rgba(0,0,0,0.16);
 }
 
 .modal-header{
@@ -597,14 +591,14 @@ td .btn{
 
 .small-box{
 
-    border-radius:22px;
+    border-radius:12px;
 
     overflow:hidden;
 
     color:#fff;
 
     box-shadow:
-        0 10px 22px rgba(0,0,0,0.06);
+        0 2px 8px rgba(0,0,0,0.06);
 }
 
 .small-box .icon{
@@ -645,5 +639,8 @@ td .btn{
 }
 
 </style>
+
+    <!-- UX polish layer (loaded last so it refines the base theme) -->
+    <link rel="stylesheet" href="../admin/css/enhance.css">
 
 </head>

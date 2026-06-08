@@ -228,6 +228,9 @@ INSERT INTO `departments` (`id`, `name`) VALUES
 CREATE TABLE `employees` (
   `id` int(11) NOT NULL,
   `employee_id` varchar(15) NOT NULL,
+  `username` varchar(50) DEFAULT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `biometric_id` varchar(20) DEFAULT NULL,
   `firstname` varchar(50) NOT NULL,
   `lastname` varchar(50) NOT NULL,
   `address` text NOT NULL,
@@ -586,6 +589,25 @@ ALTER TABLE `position`
 --
 ALTER TABLE `schedules`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `thirteenth_month_release`
+-- (used by admin/thirteenth_month*.php — was missing from earlier dumps)
+--
+
+CREATE TABLE IF NOT EXISTS `thirteenth_month_release` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `employee_id` int(11) NOT NULL,
+  `release_year` int(11) NOT NULL,
+  `release_date` date NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `release_type` varchar(50) NOT NULL,
+  `remarks` text DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

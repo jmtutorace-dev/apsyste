@@ -1,6 +1,6 @@
 <?php include 'includes/session.php'; ?>
 <?php include 'includes/header.php'; ?>
-<?php include 'includes/tax_table.php'; ?>
+<?php include 'includes/tax.php'; ?>
 
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -155,11 +155,11 @@
                       echo "
                         <tr>
 
-                          <td>".$row['description']."</td>
+                          <td>".htmlspecialchars($row['description'], ENT_QUOTES, 'UTF-8')."</td>
 
                           <td>".number_format($row['amount'], 2)."</td>
 
-                          <td>".$display_type."</td>
+                          <td>".htmlspecialchars($display_type, ENT_QUOTES, 'UTF-8')."</td>
 
                           <td>
 
@@ -318,7 +318,7 @@
                         <tr>
 
                           <td>
-                            ".$row['lastname'].", ".$row['firstname']."
+                            ".htmlspecialchars($row['lastname'].', '.$row['firstname'], ENT_QUOTES, 'UTF-8')."
                           </td>
 
                           <td>

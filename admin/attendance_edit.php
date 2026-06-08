@@ -2,54 +2,53 @@
 	include 'includes/session.php';
 
 	if(isset($_POST['edit'])){
-		$id = $_POST['id'];
-		$date = $_POST['edit_date'];
-		$time_in = $_POST['edit_time_in'];
-		$time_in = date('H:i:s', strtotime($time_in));
-		$time_out = $_POST['edit_time_out'];
-		$time_out = date('H:i:s', strtotime($time_out));
+		$id       = intval($_POST['id']);
+		$date     = $_POST['edit_date'];
+		$time_in  = date('H:i:s', strtotime($_POST['edit_time_in']));
+		$time_out = date('H:i:s', strtotime($_POST['edit_time_out']));
 
-		$sql = "UPDATE attendance SET date = '$date', time_in = '$time_in', time_out = '$time_out' WHERE id = '$id'";
-		if($conn->query($sql)){
+		$upd = $conn->prepare("UPDATE attendance SET date = ?, time_in = ?, time_out = ? WHERE id = ?");
+		$upd->bind_param('sssi', $date, $time_in, $time_out, $id);
+
+		if($upd->execute()){
 			$_SESSION['success'] = 'Attendance updated successfully';
 
-			$sql = "SELECT * FROM attendance WHERE id = '$id'";
-			$query = $conn->query($sql);
-			$row = $query->fetch_assoc();
-			$emp = $row['employee_id'];
+			// Employee + schedule for this attendance row
+			$aq = $conn->prepare("SELECT employee_id FROM attendance WHERE id = ?");
+			$aq->bind_param('i', $id);
+			$aq->execute();
+			$arow = $aq->get_result()->fetch_assoc();
+			$emp  = (int) $arow['employee_id'];
 
-			$sql = "SELECT * FROM employees LEFT JOIN schedules ON schedules.id=employees.schedule_id WHERE employees.id = '$emp'";
-			$query = $conn->query($sql);
-			$srow = $query->fetch_assoc();
+			$eq = $conn->prepare("SELECT schedules.time_in AS sched_in, schedules.time_out AS sched_out
+			                      FROM employees
+			                      LEFT JOIN schedules ON schedules.id = employees.schedule_id
+			                      WHERE employees.id = ?");
+			$eq->bind_param('i', $emp);
+			$eq->execute();
+			$srow = $eq->get_result()->fetch_assoc();
 
-			//updates
-			$logstatus = ($time_in > $srow['time_in']) ? 0 : 1;
-			//
+			$sched_in  = $srow ? $srow['sched_in']  : null;
+			$sched_out = $srow ? $srow['sched_out'] : null;
 
-			if($srow['time_in'] > $time_in){
-				$time_in = $srow['time_in'];
-			}
+			$logstatus = ($sched_in && $time_in > $sched_in) ? 0 : 1;
 
-			if($srow['time_out'] < $time_out){
-				$time_out = $srow['time_out'];
-			}
+			// Clamp to schedule, then total worked hours (minus 1h break if span > 4h)
+			$ci = $time_in;  $co = $time_out;
+			if($sched_in  && $sched_in  > $ci){ $ci = $sched_in;  }
+			if($sched_out && $sched_out < $co){ $co = $sched_out; }
 
-			$time_in = new DateTime($time_in);
-			$time_out = new DateTime($time_out);
-			$interval = $time_in->diff($time_out);
-			$hrs = $interval->format('%h');
-			$mins = $interval->format('%i');
-			$mins = $mins/60;
-			$int = $hrs + $mins;
-			if($int > 4){
-				$int = $int - 1;
-			}
+			$hours = (strtotime($co) - strtotime($ci)) / 3600;
+			if($hours > 4){ $hours -= 1; }
+			if($hours < 0){ $hours = 0; }
+			$hours = round($hours, 2);
 
-			$sql = "UPDATE attendance SET num_hr = '$int', status = '$logstatus' WHERE id = '$id'";
-			$conn->query($sql);
+			$nu = $conn->prepare("UPDATE attendance SET num_hr = ?, status = ? WHERE id = ?");
+			$nu->bind_param('dii', $hours, $logstatus, $id);
+			$nu->execute();
 		}
 		else{
-			$_SESSION['error'] = $conn->error;
+			$_SESSION['error'] = 'Operation failed. Please try again.';
 		}
 	}
 	else{
@@ -57,5 +56,4 @@
 	}
 
 	header('location:attendance.php');
-
-?>
+	exit();

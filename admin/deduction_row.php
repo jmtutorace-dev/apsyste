@@ -4,7 +4,7 @@
 
 	if(isset($_POST['id'])){
 
-		$id = $_POST['id'];
+		$id = intval($_POST['id']);
 
 		$sql = "SELECT * FROM deductions WHERE id = '$id'";
 

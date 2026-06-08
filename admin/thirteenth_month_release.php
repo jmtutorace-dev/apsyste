@@ -1,5 +1,7 @@
 <?php
 include 'includes/session.php';
+include 'includes/thirteenth_month_compute.php';
+include 'includes/settings.php';
 
 if(!isset($_GET['id']) || !isset($_GET['type'])){
     $_SESSION['error'] = 'Invalid request';
@@ -8,142 +10,59 @@ if(!isset($_GET['id']) || !isset($_GET['type'])){
 }
 
 $empid = intval($_GET['id']);
-$type = trim($_GET['type']);
+$type  = trim($_GET['type']);
+
+// Year to release for (defaults to current year)
+$year = isset($_GET['year']) ? intval($_GET['year']) : intval(date('Y'));
 
 if($type != 'Midyear' && $type != 'Year End'){
     $_SESSION['error'] = 'Invalid release type';
-    header('location: thirteenth_month.php');
+    header('location: thirteenth_month.php?year='.$year);
     exit();
 }
 
-$currentYear = date('Y');
-
 /*
 |--------------------------------------------------------------------------
-| GET EMPLOYEE
+| COMPUTE 13TH MONTH (shared, attendance-based)
 |--------------------------------------------------------------------------
 */
 
-$sql = "
-    SELECT
-        employees.*,
-        position.rate
-    FROM employees
-    LEFT JOIN position
-    ON position.id = employees.position_id
-    WHERE employees.id = '$empid'
-";
+$tm = compute_thirteenth_month($conn, $empid, $year);
 
-$query = $conn->query($sql);
-
-if($query->num_rows == 0){
-
+if(!$tm['found']){
     $_SESSION['error'] = 'Employee not found';
-    header('location: thirteenth_month.php');
+    header('location: thirteenth_month.php?year='.$year);
     exit();
 }
 
-$employee = $query->fetch_assoc();
+$thirteenthMonth = $tm['thirteenth_month'];
+$totalReleased   = $tm['released'];
 
-$monthlySalary =
-    !empty($employee['rate'])
-    ? $employee['rate']
-    : 0;
-
-/*
-|--------------------------------------------------------------------------
-| COMPUTE MONTHS WORKED
-|--------------------------------------------------------------------------
-*/
-
-$dateHired = $employee['created_on'];
-
-$hireYear = date(
-    'Y',
-    strtotime($dateHired)
-);
-
-if($hireYear < $currentYear){
-
-    $monthsWorked = 12;
+if(!$tm['entitled']){
+    $_SESSION['error'] =
+        'This employee is not yet entitled to 13th month pay for '.$year.
+        ' (needs at least one month of service within the year).';
+    header('location: thirteenth_month.php?year='.$year);
+    exit();
 }
-else{
 
-    $hireMonth = date(
-        'n',
-        strtotime($dateHired)
-    );
-
-    $monthsWorked =
-        (12 - $hireMonth) + 1;
-
-    if($monthsWorked < 0){
-        $monthsWorked = 0;
-    }
+if($thirteenthMonth <= 0){
+    $_SESSION['error'] =
+        'No 13th month pay to release for '.$year.
+        ' (no basic salary earned / no attendance recorded).';
+    header('location: thirteenth_month.php?year='.$year);
+    exit();
 }
 
 /*
 |--------------------------------------------------------------------------
-| COMPUTE 13TH MONTH
+| SETTINGS  (split mode / midyear percentage)
 |--------------------------------------------------------------------------
 */
 
-$totalBasicSalaryEarned =
-    $monthlySalary *
-    $monthsWorked;
-
-$thirteenthMonth =
-    $totalBasicSalaryEarned / 12;
-
-/*
-|--------------------------------------------------------------------------
-| SETTINGS
-|--------------------------------------------------------------------------
-*/
-
-$mode = 'split';
-$midyearPercent = 50;
-
-$setsql = "
-    SELECT *
-    FROM payroll_settings
-";
-
-$setquery = $conn->query($setsql);
-
-while($setrow = $setquery->fetch_assoc()){
-
-    if($setrow['setting_name'] == 'thirteenth_month_mode'){
-        $mode = $setrow['setting_value'];
-    }
-
-    if($setrow['setting_name'] == 'midyear_percentage'){
-        $midyearPercent = $setrow['setting_value'];
-    }
-}
-
-/*
-|--------------------------------------------------------------------------
-| CHECK RELEASED AMOUNT THIS YEAR
-|--------------------------------------------------------------------------
-*/
-
-$relsql = "
-    SELECT
-        SUM(amount) AS total_released
-    FROM thirteenth_month_release
-    WHERE employee_id = '$empid'
-    AND release_year = '$currentYear'
-";
-
-$relquery = $conn->query($relsql);
-
-$relrow = $relquery->fetch_assoc();
-
-$totalReleased =
-    !empty($relrow['total_released'])
-    ? $relrow['total_released']
-    : 0;
+$cfg            = get_payroll_settings($conn);
+$mode           = ($cfg['thirteenth_mode'] === 'split') ? 'split' : 'full';
+$midyearPercent = max(0, min(100, (float) $cfg['midyear_percentage']));
 
 /*
 |--------------------------------------------------------------------------
@@ -151,22 +70,16 @@ $totalReleased =
 |--------------------------------------------------------------------------
 */
 
-$dupsql = "
-    SELECT id
-    FROM thirteenth_month_release
-    WHERE employee_id = '$empid'
-    AND release_year = '$currentYear'
-    AND release_type = '$type'
-";
+$dupstmt = $conn->prepare("
+    SELECT id FROM thirteenth_month_release
+    WHERE employee_id = ? AND release_year = ? AND release_type = ?
+");
+$dupstmt->bind_param('iis', $empid, $year, $type);
+$dupstmt->execute();
 
-$dupquery = $conn->query($dupsql);
-
-if($dupquery->num_rows > 0){
-
-    $_SESSION['error'] =
-        $type.' already released for '.$currentYear;
-
-    header('location: thirteenth_month.php');
+if($dupstmt->get_result()->num_rows > 0){
+    $_SESSION['error'] = $type.' already released for '.$year;
+    header('location: thirteenth_month.php?year='.$year);
     exit();
 }
 
@@ -181,46 +94,39 @@ $amount = 0;
 if($mode == 'split'){
 
     if($type == 'Midyear'){
-
-        $amount =
-            $thirteenthMonth *
-            ($midyearPercent / 100);
+        $amount = $thirteenthMonth * ($midyearPercent / 100);
     }
     else{
-
-        $amount =
-            $thirteenthMonth -
-            $totalReleased;
+        // Year End pays the remaining balance
+        $amount = $thirteenthMonth - $totalReleased;
     }
 }
 else{
 
     if($type == 'Midyear'){
-
-        $_SESSION['error'] =
-            'Midyear release disabled';
-
-        header('location: thirteenth_month.php');
+        $_SESSION['error'] = 'Midyear release is disabled';
+        header('location: thirteenth_month.php?year='.$year);
         exit();
     }
 
-    $amount =
-        $thirteenthMonth -
-        $totalReleased;
+    $amount = $thirteenthMonth - $totalReleased;
 }
 
 /*
 |--------------------------------------------------------------------------
-| VALIDATION
+| VALIDATION — never release more than the remaining balance
 |--------------------------------------------------------------------------
 */
 
+$remaining = $thirteenthMonth - $totalReleased;
+
+if($amount > $remaining){
+    $amount = $remaining;       // clamp (e.g. a >100% midyear setting can't over-pay)
+}
+
 if($amount <= 0){
-
-    $_SESSION['error'] =
-        'No remaining 13th month balance';
-
-    header('location: thirteenth_month.php');
+    $_SESSION['error'] = 'No remaining 13th month balance for '.$year;
+    header('location: thirteenth_month.php?year='.$year);
     exit();
 }
 
@@ -230,38 +136,24 @@ if($amount <= 0){
 |--------------------------------------------------------------------------
 */
 
-$insql = "
+$amount = round($amount, 2);
+
+$instmt = $conn->prepare("
     INSERT INTO thirteenth_month_release
-    (
-        employee_id,
-        release_year,
-        release_date,
-        amount,
-        release_type
-    )
-    VALUES
-    (
-        '$empid',
-        '$currentYear',
-        CURDATE(),
-        '$amount',
-        '$type'
-    )
-";
+    (employee_id, release_year, release_date, amount, release_type)
+    VALUES (?, ?, CURDATE(), ?, ?)
+");
+$instmt->bind_param('iids', $empid, $year, $amount, $type);
 
-if($conn->query($insql)){
-
+if($instmt->execute()){
     $_SESSION['success'] =
-        '13th Month '.$type.
-        ' released successfully. Amount: ₱'.
-        number_format($amount,2);
+        '13th Month '.$type.' released successfully for '.$year.
+        '. Amount: &#8369;'.number_format($amount, 2);
 }
 else{
-
-    $_SESSION['error'] =
-        $conn->error;
+    $_SESSION['error'] = 'Could not record the release. Please try again.';
 }
 
-header('location: thirteenth_month.php');
+header('location: thirteenth_month.php?year='.$year);
 exit();
 ?>
