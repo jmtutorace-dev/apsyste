@@ -39,7 +39,7 @@
 
                             <p class="text-muted">
                                 Choose your pay period, then click <b>Generate</b>. Pay is computed
-                                semi-monthly, so pick a half-month cut-off (the <b>1st&ndash;15th</b>
+                                semi-monthly, so pick a half-month cut-off (the <b>1st&ndash;16th</b>
                                 or the <b>16th&ndash;end of the month</b>).
                             </p>
 

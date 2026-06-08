@@ -260,10 +260,13 @@ $sql = "SELECT
             employees.id AS empid,
             position.description AS position_name,
             schedules.time_in,
-            schedules.time_out
+            schedules.time_out,
+            dpt.name AS department_name
         FROM employees
         LEFT JOIN position ON position.id = employees.position_id
-        LEFT JOIN schedules ON schedules.id = employees.schedule_id";
+        LEFT JOIN schedules ON schedules.id = employees.schedule_id
+        LEFT JOIN departments dpt ON dpt.id = employees.department";
+
 
 $query = $conn->query($sql);
 
@@ -273,7 +276,8 @@ while($row = $query->fetch_assoc()){
 
 <tr class="employee-row"
     data-id="<?php echo (int)$row['empid']; ?>"
-    data-dept="<?php echo htmlspecialchars($row['department'], ENT_QUOTES, 'UTF-8'); ?>"
+            data-dept="<?php echo htmlspecialchars($row['department_name'] ?? $row['department'], ENT_QUOTES, 'UTF-8'); ?>"
+
     style="cursor:pointer;">
 
     <td>
@@ -317,8 +321,9 @@ while($row = $query->fetch_assoc()){
     </td>
 
     <td>
-        <?php echo htmlspecialchars($row['department'], ENT_QUOTES, 'UTF-8'); ?>
+        <?php echo htmlspecialchars($row['department_name'] ?? $row['department'], ENT_QUOTES, 'UTF-8'); ?>
     </td>
+
 
     <td>
         <?php echo date('M d, Y', strtotime($row['created_on'])); ?>

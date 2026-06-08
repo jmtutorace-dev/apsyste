@@ -46,7 +46,8 @@
                                 <tr><td width="40%"><b>Employee ID</b></td><td><?php echo htmlspecialchars($emp['employee_id']); ?></td></tr>
                                 <tr><td><b>Name</b></td><td><?php echo htmlspecialchars($emp['firstname'].' '.$emp['lastname']); ?></td></tr>
                                 <tr><td><b>Position</b></td><td><?php echo htmlspecialchars($emp['position_name']); ?></td></tr>
-                                <tr><td><b>Department</b></td><td><?php echo htmlspecialchars($emp['department']); ?></td></tr>
+                                <tr><td><b>Department</b></td><td><?php echo htmlspecialchars($emp['department_name'] ?? $emp['department']); ?></td></tr>
+
                             </table>
                         </div>
                     </div>

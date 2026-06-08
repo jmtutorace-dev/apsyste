@@ -16,11 +16,14 @@ $sql = "SELECT employees.*,
                position.rate,
                position.description AS position_name,
                schedules.time_in  AS sched_in,
-               schedules.time_out AS sched_out
+               schedules.time_out AS sched_out,
+               dpt.name AS department_name
         FROM employees
         LEFT JOIN position  ON position.id  = employees.position_id
         LEFT JOIN schedules ON schedules.id = employees.schedule_id
+        LEFT JOIN departments dpt ON dpt.id = employees.department
         WHERE employees.id = ?";
+
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param('i', $eid);

@@ -20,7 +20,22 @@ if(isset($_POST['edit'])){
     $gender       = $_POST['gender'];
     $position     = intval($_POST['position']);
     $schedule     = intval($_POST['schedule']);
-    $department   = trim($_POST['department']);
+    // UI sends department NAME (e.g., "Accounting"), but employees.department may be stored as an INT id.
+    // To avoid MySQL coercing non-numeric strings into 0, map the name to department id.
+    $department_name = trim($_POST['department']);
+    $department = $department_name;
+
+    $dept_lookup = $conn->prepare("SELECT id FROM departments WHERE name = ? LIMIT 1");
+    if($dept_lookup){
+        $dept_lookup->bind_param('s', $department_name);
+        $dept_lookup->execute();
+        $dept_lookup->bind_result($dept_id);
+        if($dept_lookup->fetch()){
+            $department = $dept_id;
+        }
+        $dept_lookup->close();
+    }
+
 
     $stmt = $conn->prepare("UPDATE employees SET
         firstname=?, lastname=?, biometric_id=?, address=?, birthdate=?,
